@@ -16,6 +16,7 @@
 #include "rectangle3D.h"
 #include "rectangle2D.h"
 #include "color.h"
+#include "player.h"
 #include <assert.h>
 
 //-----------------------------------------
@@ -34,7 +35,7 @@ void InitTitle(void)
 {
 	InitLight();
 	InitCamera();
-
+	InitPlayer();
 	// DEBUGのため(矩形2D)
 	{
 		int data = SetRectangle(TEXTURE_NONE);
@@ -77,6 +78,7 @@ void UninitTitle(void)
 void UpdateTitle(void)
 {
 	UpdateCamera();
+	UpdatePlayer();
 }
 
 //=========================================
@@ -92,9 +94,11 @@ void SelectTitle(void)
 //=========================================
 void DrawTitle(void)
 {
+
 	SetCamera();		// カメラ
-	DrawRectangle3D();
-	DrawRectangle();	// 矩形
+	//DrawRectangle3D();
+	//DrawRectangle();	// 矩形	
+	DrawPlayer();
 }
 
 //=========================================
