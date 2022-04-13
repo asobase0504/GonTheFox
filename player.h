@@ -19,6 +19,7 @@ typedef enum
 	ANIME_ATTACK,	//UŒ‚
 	ANIME_JUMP,		//ƒWƒƒƒ“ƒv
 	ANIME_LANDING,	//’…’n
+
 	ANIME_MAX
 }ANIME;
 

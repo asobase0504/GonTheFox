@@ -324,8 +324,7 @@ void SizSet(void)
 		pVtxBuff += sizeFVF;
 		//これをやれば最大最小を求められる
 	}
-	s_Player.ModelMax.z *= 3;
-	s_Player.ModelMax.x *= 3;
+
 	//頂点バッファのロックしましょう
 	s_Player.Parts[s_nParts].pMesh->UnlockVertexBuffer();
 }
