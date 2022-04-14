@@ -7,15 +7,20 @@
 //-----------------------------------------
 // include
 //-----------------------------------------
+// 主要ヘッダー
 #include "title.h"
 #include "input.h"
-#include "fade.h"
+#include "sound.h"
+#include "mode.h"
+// 処理ヘッダー
+
+// 描画ヘッダー
 #include "camera.h"
 #include "light.h"
-#include "sound.h"
 #include "rectangle3D.h"
 #include "rectangle2D.h"
 #include "color.h"
+// DEBUGヘッダー
 #include <assert.h>
 
 //-----------------------------------------
@@ -77,6 +82,11 @@ void UninitTitle(void)
 void UpdateTitle(void)
 {
 	UpdateCamera();
+
+	if (GetKeyboardTrigger(DIK_RETURN))
+	{
+		ChangeMode(MODE_GAME);
+	}
 }
 
 //=========================================
@@ -93,8 +103,8 @@ void SelectTitle(void)
 void DrawTitle(void)
 {
 	SetCamera();		// カメラ
-	DrawRectangle3D();
-	DrawRectangle();	// 矩形
+	DrawRectangle();	// 矩形(2D)
+	DrawRectangle3D();	// 矩形(3D)
 }
 
 //=========================================
