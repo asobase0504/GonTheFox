@@ -13,7 +13,7 @@
 #include "sound.h"
 #include "mode.h"
 // 処理ヘッダー
-
+#include "player.h"
 // 描画ヘッダー
 #include "camera.h"
 #include "light.h"
@@ -39,7 +39,7 @@ void InitTitle(void)
 {
 	InitLight();
 	InitCamera();
-
+	InitPlayer();
 	// DEBUGのため(矩形2D)
 	{
 		int data = SetRectangle(TEXTURE_NONE);
@@ -82,6 +82,7 @@ void UninitTitle(void)
 void UpdateTitle(void)
 {
 	UpdateCamera();
+	UpdatePlayer();
 
 	if (GetKeyboardTrigger(DIK_RETURN))
 	{
@@ -102,8 +103,10 @@ void SelectTitle(void)
 //=========================================
 void DrawTitle(void)
 {
+
 	SetCamera();		// カメラ
 	DrawRectangle();	// 矩形(2D)
+	DrawPlayer();
 	DrawRectangle3D();	// 矩形(3D)
 }
 

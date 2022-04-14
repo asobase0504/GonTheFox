@@ -35,7 +35,7 @@ void InitCamera(void)
 	ZeroMemory(&s_camera, sizeof(s_camera));
 
 	// 視点・注視点・上方向を設定する
-	s_camera.posV = D3DXVECTOR3(0.0f, 0.0f, -15.0f);	// 視点
+	s_camera.posV = D3DXVECTOR3(0.0f, 0.0f, -100.0f);	// 視点
 	s_camera.posR = D3DXVECTOR3(0.0f,0.0f,0.0f);	// 注視点
 	s_camera.vecU = D3DXVECTOR3(0.0f,1.0f,0.0f);	// 上方向ベクトル
 	s_camera.rot = ZERO_VECTOR;	// 向き
@@ -60,9 +60,9 @@ void UninitCamera(void)
 //==================================================
 void UpdateCamera(void)
 {
-	InputCamera();
+	//InputCamera();
 
-	D3DXVECTOR3 vec = s_camera.posV - s_camera.posR;
+	//D3DXVECTOR3 vec = s_camera.posV - s_camera.posR;
 }
 
 //==================================================
