@@ -33,6 +33,7 @@ typedef struct
 	D3DXMATRIX				mtxWorld;	// ワールドマトリックス
 	bool					bUse;		// 使用フラグ
 	bool					bDraw;		// 描画フラグ
+	bool					bLigth;		// ライトフラグ
 } MyRectangle3D;
 
 //--------------------------------------------------
@@ -62,7 +63,6 @@ void UninitRectangle3D(void)
 			s_aRectangle3D[i].pVtxBuff = NULL;
 		}
 	}
-
 }
 
 //==================================================
@@ -101,23 +101,28 @@ void DrawRectangle3D(void)
 		// 頂点バッファをデバイスのデータストリームに設定
 		pDevice->SetStreamSource(0, pRectAngle3D->pVtxBuff, 0, sizeof(VERTEX_3D));
 
-		pDevice->SetRenderState(D3DRS_CULLMODE, 1);
-		pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_NOTEQUAL);
-
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_3D);
+
+		if (!pRectAngle3D->bLigth)
+		{
+			// ライトを無効にする
+			pDevice->SetRenderState(D3DRS_LIGHTING, false);
+		}
 
 		pDevice->SetTexture(0, pRectAngle3D->pTexture);
 
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-		pDevice->SetRenderState(D3DRS_CULLMODE, 3);
-		pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+		if (!pRectAngle3D->bLigth)
+		{
+			// ライトを無効にする
+			pDevice->SetRenderState(D3DRS_LIGHTING, true);
+		}
 
 		// テクスチャの解除
 		pDevice->SetTexture(0, NULL);
-
 	}
 }
 
@@ -137,23 +142,23 @@ int SetRectangle3DWithTex(LPDIRECT3DTEXTURE9 pTexture)
 {
 	for (int i = 0; i <= MAX_POLYGON; i++)
 	{
-		MyRectangle3D* polygon = &s_aRectangle3D[i];
+		MyRectangle3D* pRectAngle3D = &s_aRectangle3D[i];
 
-		if (polygon->bUse)
+		if (pRectAngle3D->bUse)
 		{
 			continue;
 		}
 
-		polygon->pTexture = pTexture;
-		polygon->bUse = true;
-		polygon->bDraw = true;
+		pRectAngle3D->pTexture = pTexture;
+		pRectAngle3D->bUse = true;
+		pRectAngle3D->bDraw = true;
 
 		// 頂点バッファの生成
 		GetDevice()->CreateVertexBuffer(sizeof(VERTEX_3D) * NUM_VERTEX,
 			D3DUSAGE_WRITEONLY,
 			FVF_VERTEX_3D,
 			D3DPOOL_MANAGED,
-			&polygon->pVtxBuff,
+			&pRectAngle3D->pVtxBuff,
 			NULL);
 
 		// 各頂点の法線の設定(※ベクトルの大きさは1にする必要がある)
@@ -296,7 +301,6 @@ void SetSizeRectangle3D(int nIdx, const D3DXVECTOR3 &size)
 
 	// 頂点バッファをアンロックする
 	pVtxBuff->Unlock();
-
 }
 
 //==================================================
@@ -365,7 +369,6 @@ void SetColorRectangle3D(int nIdx, const D3DXCOLOR &color)
 
 	// 頂点バッファをアンロックする
 	pVtxBuff->Unlock();
-
 }
 
 //==================================================
@@ -401,7 +404,6 @@ void SetTexRectangle3D(int nIdx, const D3DXVECTOR2 &texU, const D3DXVECTOR2 &tex
 
 	// 頂点バッファをアンロックする
 	pVtxBuff->Unlock();
-
 }
 
 //==================================================
@@ -409,7 +411,7 @@ void SetTexRectangle3D(int nIdx, const D3DXVECTOR2 &texU, const D3DXVECTOR2 &tex
 // 引数1  : int nIdx / インデックス
 // 引数2  : bool bDraw / 描画するかどうか
 //==================================================
-void SetDrawRectangle3D(int nIdx, bool bDraw)
+void SetIsDrawRectangle3D(int nIdx, bool bDraw)
 {
 	assert(nIdx >= 0 && nIdx < MAX_POLYGON);
 
@@ -423,7 +425,26 @@ void SetDrawRectangle3D(int nIdx, bool bDraw)
 	/*↓ 使用している ↓*/
 
 	pRectAngle3D->bDraw = bDraw;
+}
 
+//==================================================
+// ライトの有無
+// 引数1  : int nIdx / インデックス
+// 引数2  : bool bDraw / ライトを切るか否か
+//==================================================
+void SetIsLightRectangle3D(int nIdx, bool bLigth)
+{
+	assert(nIdx >= 0 && nIdx < MAX_POLYGON);
+
+	MyRectangle3D *pRectAngle3D = &s_aRectangle3D[nIdx];
+
+	if (!pRectAngle3D->bUse)
+	{// 使用していない
+		return;
+	}
+
+	/*↓ 使用している ↓*/
+	pRectAngle3D->bLigth = bLigth;
 }
 
 //==================================================

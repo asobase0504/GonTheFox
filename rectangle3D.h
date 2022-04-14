@@ -97,14 +97,21 @@ void SetTexRectangle3D(int nIdx, const D3DXVECTOR2 &texU, const D3DXVECTOR2 &tex
 // 引数1  : int nIdx / インデックス
 // 引数2  : bool bDraw / 描画するかどうか
 //==================================================
-void SetDrawRectangle3D(int nIdx, bool bDraw);
+void SetIsDrawRectangle3D(int nIdx, bool bDraw);
+
+//==================================================
+// ライトの有無
+// 引数1  : int nIdx / インデックス
+// 引数2  : bool bDraw / ライトを切るか否か
+//==================================================
+void SetIsLightRectangle3D(int nIdx, bool bLigth);
 
 //==================================================
 // 加算合成するかどうか
 // 引数1  : int nIdx / インデックス
 // 引数2  : bool bDraw / 加算合成するかどうか
 //==================================================
-void SetAddRectangle3D(int nIdx, bool bAdd);
+void IsAddRectangle3D(int nIdx, bool bAdd);
 
 //==================================================
 // テクスチャの変更

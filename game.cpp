@@ -49,6 +49,7 @@ void InitGame(void)
 	InitLight();
 	InitCamera();
 	InitPlayer();
+
 	// DEBUGのため(矩形2D)
 	{
 		int data = SetRectangle(TEXTURE_NONE);
@@ -66,14 +67,11 @@ void InitGame(void)
 		D3DXVECTOR3 size = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 15.0f, SCREEN_HEIGHT * 0.75f);
 		D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, -SCREEN_HEIGHT * 0.75f);
 
-		// 大きさの設定
-		SetSizeRectangle3D(hoge, size);
-
-		// 色の設定
-		SetColorRectangle3D(hoge, GetColor(COLOR_BLUE));
-
-		// 矩形の位置の設定
-		SetPosRectangle3D(hoge, pos);
+		// 設定
+		SetPosRectangle3D(hoge, pos);						// 位置
+		SetSizeRectangle3D(hoge, size);						// 大きさ
+		SetColorRectangle3D(hoge, GetColor(COLOR_BLUE));	// 色
+		SetIsLightRectangle3D(hoge,false);					// ライト有無
 	}
 }
 
@@ -99,8 +97,6 @@ void UpdateGame(void)
 //=========================================
 void DrawGame()
 {
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();	//デバイスの取得
-
 	SetCamera();	// カメラ
 
 	DrawPlayer();		// プレイヤー
@@ -108,7 +104,7 @@ void DrawGame()
 	DrawRectangle();	// 矩形(2D)
 
 	// 2Dの前に3Dを置く
-	pDevice->Clear(0, NULL, (D3DCLEAR_ZBUFFER), D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
+	GetDevice()->Clear(0, NULL, (D3DCLEAR_ZBUFFER), D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
 
 	/* ↓2Dの上に置きたい3D描画↓ */
 }
