@@ -9,7 +9,7 @@
 #include "Player.h"
 #include "input.h"
 #include "camera.h"
-
+#include "utility.h"
 #include "file.h"
 
 #include "title.h"
@@ -446,32 +446,9 @@ void AnimationSet(int Animation)
 			s_Player.Parts[i].pos = PosFrame;
 
 			//³‹K‰»
-			if (s_Player.Parts[i].rot.x > D3DX_PI)
-			{
-				s_Player.Parts[i].rot.x += D3DX_PI * 2;
-			}
-			if (s_Player.Parts[i].rot.x < -D3DX_PI)
-			{
-				s_Player.Parts[i].rot.x += -D3DX_PI * 2;
-			}
-			//³‹K‰»
-			if (s_Player.Parts[i].rot.z > D3DX_PI)
-			{
-				s_Player.Parts[i].rot.z += D3DX_PI * 2;
-			}
-			if (s_Player.Parts[i].rot.z < -D3DX_PI)
-			{
-				s_Player.Parts[i].rot.z += -D3DX_PI * 2;
-			}
-			//³‹K‰»
-			if (s_Player.Parts[i].rot.y > D3DX_PI)
-			{
-				s_Player.Parts[i].rot.y += D3DX_PI * 2;
-			}
-			if (s_Player.Parts[i].rot.y < -D3DX_PI)
-			{
-				s_Player.Parts[i].rot.y += -D3DX_PI * 2;
-			}
+			NormalizeAngle(&s_Player.Parts[i].rot.x);
+			NormalizeAngle(&s_Player.Parts[i].rot.y);
+			NormalizeAngle(&s_Player.Parts[i].rot.z);
 		}
 	}
 
