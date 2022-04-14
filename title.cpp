@@ -37,35 +37,6 @@ bool s_bExit = false;	// ゲーム自体の終了フラグ
 //=========================================
 void InitTitle(void)
 {
-	InitLight();
-	InitCamera();
-	InitPlayer();
-	// DEBUGのため(矩形2D)
-	{
-		int data = SetRectangle(TEXTURE_NONE);
-		D3DXVECTOR3 size = D3DXVECTOR3(300.0f, 300.0f, 0.0f);
-		D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.275f, SCREEN_HEIGHT * 0.5f, 0.0f);
-
-		SetColorRectangle(data, GetColor(COLOR_RED));
-		// 矩形の位置の設定
-		SetPosRectangle(data, pos, size);
-	}
-
-	// DEBUGのため(矩形3D)
-	{
-		int hoge = SetRectangle3D(TEXTURE_NONE);
-		D3DXVECTOR3 size = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, 0.0f, SCREEN_HEIGHT * 0.5f);
-		D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-		// 大きさの設定
-		SetSizeRectangle3D(hoge, size);
-
-		// 色の設定
-		SetColorRectangle3D(hoge, GetColor(COLOR_BLUE));
-		
-		// 矩形の位置の設定
-		SetPosRectangle3D(hoge, pos);
-	}
 }
 
 //=========================================
@@ -81,9 +52,6 @@ void UninitTitle(void)
 //=========================================
 void UpdateTitle(void)
 {
-	UpdateCamera();
-	UpdatePlayer();
-
 	if (GetKeyboardTrigger(DIK_RETURN))
 	{
 		ChangeMode(MODE_GAME);
@@ -103,11 +71,9 @@ void SelectTitle(void)
 //=========================================
 void DrawTitle(void)
 {
-
 	SetCamera();		// カメラ
-	DrawRectangle();	// 矩形(2D)
-	DrawPlayer();
 	DrawRectangle3D();	// 矩形(3D)
+	DrawRectangle();	// 矩形(2D)
 }
 
 //=========================================
