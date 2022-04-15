@@ -127,13 +127,13 @@ void LoadSetFile(char *Filename)
 					if (strcmp(&s_aString[0], "LOOP") == 0)
 					{// •¶Žš—ñ‚ªˆê’v‚µ‚½ê‡//ƒ‹[ƒv‚·‚é‚©‚µ‚È‚¢‚©1‚·‚é‚O‚µ‚È‚¢
 						fscanf(pFile, "%s", &s_aString[0]);//“Ç‚Ýž‚Þ‚â‚Â
-						fscanf(pFile, "%d", &ModelData->LOOP);
+						fscanf(pFile, "%d", &ModelData->loop);
 
 					}
 					if (strcmp(&s_aString[0], "NUM_KEY") == 0)
 					{// •¶Žš—ñ‚ªˆê’v‚µ‚½ê‡//ƒL[‚ÌÅ‘å”
 						fscanf(pFile, "%s", &s_aString[0]);//“Ç‚Ýž‚Þ‚â‚Â
-						fscanf(pFile, "%d", &ModelData->NUM_KEY);
+						fscanf(pFile, "%d", &ModelData->num_key);
 
 					}
 					if (strcmp(&s_aString[0], "KEYSET") == 0)
@@ -182,7 +182,7 @@ void LoadKeySetFile(FILE * pFile, MODELDATAPLAYER* set)
 			if (strcmp(&s_aString[0], "FRAME") == 0)
 			{// •¶Žš—ñ‚ªˆê’v‚µ‚½ê‡
 				fscanf(pFile, "%s", &s_aString[0]);//ƒCƒR[ƒ‹“Ç‚Ýž‚Þ
-				fscanf(pFile, "%d", &set->KeySet[nSetModel].KeyFrame);
+				fscanf(pFile, "%d", &set->KeySet[nSetModel].keyFrame);
 			}	
 			if (strcmp(&s_aString[0], "KEY") == 0)
 			{

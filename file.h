@@ -43,7 +43,7 @@ typedef struct
 //キーセットの構造体//
 typedef struct
 {
-	int KeyFrame;
+	int keyFrame;
 	kEY key[MAX_MODELPARTS];
 }kEYSET;
 
