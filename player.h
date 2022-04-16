@@ -9,8 +9,19 @@
 
 #include "main.h"
 
+//------------------------------------
+// マクロ
+//------------------------------------
+
+#define Attenuation	(0.5f)		//減衰係数
+#define Speed	(1.0f)			//スピード
+#define WIDTH (10.0f)			//モデルの半径
+#define MAX_PRAYER (16)			//最大数
+#define MAX_MOVE (9)			//アニメーションの最大数
+#define INVINCIBLE (300)		//無敵時間
 #define MAX_MODELPARTS (9)
 #define MAX_KEY  (6)
+#define MAX_COPY  (4)
 
 typedef enum
 {
@@ -19,10 +30,6 @@ typedef enum
 	ANIME_ATTACK,	//攻撃
 	ANIME_JUMP,		//ジャンプ
 	ANIME_LANDING,	//着地
-	ANIME_COPY,		//コピー
-	ANIME_FIRE,		//ファイア
-	ANIME_LASER,	//レーザー
-	ANIME_CUTTER,	//カッター
 	ANIME_MAX
 }ANIME;
 
@@ -45,6 +52,15 @@ typedef enum
 	DAMEGE_MAX
 }DAMEGE;
 
+typedef enum
+{
+	COPY_NORMAL = 0,//ニュートラル
+	COPY_SWORD,		//ソード
+	COPY_FIRE,		//ファイア
+	COPY_LASER,		//レーザー
+	COPY_CUTTER,	//カッター
+	COPY_MAX
+}COPY;
 
 //キーの構造体//
 typedef struct
@@ -88,16 +104,6 @@ typedef struct
 	int idxModelParent;         //親のインデックス       aModel[   ] の番号
 }ModelParts;
 
-typedef enum
-{
-	COPY_NORMAL = 0,//ニュートラル
-	COPY_SWORD,		//攻撃
-	COPY_FIRE,		//ファイア
-	COPY_LASER,		//レーザー
-	COPY_CUTTER,	//カッター
-	COPY_MAX
-}COPY;
-
 typedef struct
 {
 	ModelParts Parts[MAX_MODELPARTS];	//modelの数
@@ -129,11 +135,13 @@ void UninitPlayer(void);//破棄
 void UpdatePlayer(void);//更新
 void DrawPlayer(void);//描画
 
-void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent,int index, D3DXVECTOR3 modelPos);//セット引数座標と読み込むファイル名
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent,int index);//セット引数座標と読み込むファイル名
 void SizSet(void);//当たり判定取得
 void AnimationSet(int animation);//アニメーションの計算
 void MoveSet(void);	//ムーブセット
 void Collision(void);	//当たり判定まとめ
+void loadmotion(MODELDATAPLAYER* set ,int Setnumber);
+void SetCopy(void);
 PLAYER *GetPlayer(void);//ゲット
 MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
 #endif

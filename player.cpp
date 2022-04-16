@@ -15,23 +15,14 @@
 #include "sound.h"
 
 //------------------------------------
-// マクロ
-//------------------------------------
-
-#define Attenuation	(0.5f)		//減衰係数
-#define Speed	(1.0f)			//スピード
-#define WIDTH (10.0f)			//モデルの半径
-#define MAX_PRAYER (16)			//最大数
-#define MAX_MOVE (9)			//アニメーションの最大数
-#define INVINCIBLE (300)		//無敵時間
-//------------------------------------
 // static変数
 //------------------------------------
 static PLAYER s_Player;	// ポリゴンの構造体
 static MODELDATAPLAYER s_ModelData[MAX_MOVE];
+
 static int s_time, s_parts;//タイマーとパーツの最大数
 static int s_pow;//ジャンプパワー
-
+static int nMotion;//
 //=========================================
 // 初期化処理
 //=========================================
@@ -60,12 +51,8 @@ void InitPlayer(void)
 		s_Player.Parts[nSet].idxModelParent = 0;
 	}
 	s_time = 0;
+	LoadSetFile("Data/system/Fox.txt");
 
-	//ファイル
-	LoadSetFile(LOOD_FILE_NAME_000);//0がプレイヤー
-
-//ファイル
-	LoadSetFile(LOOD_FILE_NAME_002);//0がプレイヤー
 }
 
 //=========================================
@@ -125,27 +112,11 @@ void UpdatePlayer(void)
 	}
 
 
-	s_Player.move.y -= 0.1f;
+	//s_Player.move.y -= 0.1f;
 	if (GetKeyboardPress(DIK_B))
 	{
-		s_Player.motion = ANIME_COPY;//攻撃
-		switch (s_Player.cipy)
-		{
-		case COPY_SWORD:
-			s_Player.motion = ANIME_ATTACK;//攻撃
-			break;
-		case COPY_FIRE:
-			s_Player.motion = ANIME_FIRE;//攻撃
-			break;
-		case COPY_LASER:
-			s_Player.motion = ANIME_LASER;//攻撃
-			break;
-		case COPY_CUTTER:
-			s_Player.motion = ANIME_CUTTER;//攻撃
-			break;
-		default:
-			break;
-		}
+		s_Player.motion = ANIME_ATTACK;//攻撃
+
 		s_Player.notLoop = true;
 	}
 	if (GetKeyboardPress(DIK_N))
@@ -154,19 +125,28 @@ void UpdatePlayer(void)
 	}
 	if (GetKeyboardPress(DIK_J))
 	{
-		s_Player.cipy = COPY_NORMAL;
+		s_Player.cipy = COPY_SWORD;
+		SetCopy();
 	}
 	if (GetKeyboardPress(DIK_H))
 	{
-		s_Player.cipy = COPY_NORMAL;
+		s_Player.cipy = COPY_FIRE;
+		SetCopy();
 	}
-	if (GetKeyboardPress(DIK_S))
+	if (GetKeyboardPress(DIK_F))
 	{
-		s_Player.cipy = COPY_NORMAL;
+		s_Player.cipy = COPY_LASER;
+		SetCopy();
 	}
 	if (GetKeyboardPress(DIK_G))
 	{
+		s_Player.cipy = COPY_CUTTER;
+		SetCopy();
+	}
+	if (GetKeyboardPress(DIK_K))
+	{
 		s_Player.cipy = COPY_NORMAL;
+		SetCopy();
 	}
 	////影更新
 	////SetposShadow(s_Player.nShadow, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y, s_Player.pos.z));
@@ -272,18 +252,14 @@ void DrawPlayer(void)
 
 
 
-void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent, int index, D3DXVECTOR3 modelPos)
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent, int index)
 {
 	//カメラのデータ取得
 	Camera *pCamera = GetCamera();
 
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	char aFile[128] = FILE_3D_PLAYER;
-
-	strcat(aFile, &filename[0]);//合成　aFile＜-こいつに入れる
-
-	D3DXLoadMeshFromX(&aFile[0],
+	D3DXLoadMeshFromX(filename,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -297,7 +273,6 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent, int
 	s_Player.rotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
 
 	// 初期化処理
-	s_Player.pos = modelPos;		//初回座標設定
 	s_Player.Parts[s_parts].pos = pos;	// 頂点座標
 	s_Player.Parts[s_parts].posOri = s_Player.Parts[s_parts].pos;
 	s_Player.Parts[s_parts].posdefault = s_Player.Parts[s_parts].pos;
@@ -608,15 +583,15 @@ void MoveSet(void)
 	}
 	s_Player.posOld = s_Player.pos;//過去の移動量を保存
 
-	s_Player.move.x += (0.0f - s_Player.move.x)*0.5f;//（目的の値-現在の値）＊減衰係数
-	s_Player.move.z += (0.0f - s_Player.move.z)*0.5f;
-	s_Player.pos += s_Player.move;//移動を加算
+	
 
 	if (s_Player.invincible <= 0)
 	{//無敵時間がゼロになったらダメージくらうようにする
 		s_Player.damege = DAMEGE_NORMAL;
 	}
-
+	s_Player.move.x += (0.0f - s_Player.move.x)*0.5f;//（目的の値-現在の値）＊減衰係数
+	s_Player.move.z += (0.0f - s_Player.move.z)*0.5f;
+	s_Player.pos += s_Player.move;//移動を加算
 	//正規化
 	if (s_Player.consumption > D3DX_PI)
 	{
@@ -647,22 +622,48 @@ void MoveSet(void)
 //-------------------------------
 void Collision(void)
 {
-	if
 
 }
-
+void loadmotion(MODELDATAPLAYER* set, int Setnumber)
+{
+	s_ModelData[nMotion] = *set;
+	nMotion++;
+}
+void SetCopy(void)
+{
+	nMotion = 0;
+	if (s_parts >= 8)
+	{
+		s_parts = 7;
+	}
+	
+	switch (s_Player.cipy)
+	{
+	case COPY_SWORD:
+		LoadCopy("Data/system/sword.txt");
+		break;
+	case COPY_FIRE:
+		LoadCopy("Data/system/flare.txt");
+		break;
+	case COPY_LASER:
+		LoadCopy("Data/system/Laser.txt");
+		break;
+	case COPY_CUTTER:
+		LoadCopy("Data/system/Cutter.txt");
+		break;
+	default:
+		LoadCopy("Data/system/Nomar.txt");
+		break;
+	}
+	
+	
+	
+	
+}
 //----------------------
 //ゲット(構造体)
 //----------------------
 PLAYER *GetPlayer(void)
 {
 	return &s_Player;
-}
-
-//----------------------
-//ゲット(motion)
-//----------------------
-MODELDATAPLAYER *GetModelData(void)
-{
-	return &s_ModelData[0];
 }
