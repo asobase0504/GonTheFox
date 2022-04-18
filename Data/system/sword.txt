@@ -179,7 +179,7 @@ MOTIONSET
 		
 			KEY	# ----- [ 7 ] -----
 			POS = 1.00 0.00 10.00
-				ROT = 3.14 0.00 -1.50
+			ROT = 3.14 0.00 -1.50
 		END_KEY
 	END_KEYSET
 
@@ -222,7 +222,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 1.00 0.00 10.00
-				ROT = 3.14 0.00 -1.50
+			ROT = 3.14 0.00 -1.50
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
@@ -384,7 +384,7 @@ END_MOTIONSET
 #========================================
 
 MOTIONSET
-	LOOP = 1		# ループするかどうか[0:ループしない / 1:ループする]
+	LOOP = 0		# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 4		# キー数
 
 	KEYSET			# --- << KEY : 0 / 4 >> ---
