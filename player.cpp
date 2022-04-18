@@ -415,6 +415,9 @@ void AnimationSet(int animation)
 				s_Player.Parts[i].rot = RotFrame;
 				s_Player.Parts[i].pos = PosFrame;
 
+				//ê≥ãKâª
+				NormalizeAngle(&s_Player.Parts[i].rot.y);
+				NormalizeAngle(&s_Player.Parts[i].rot.z);
 				
 			}
 		}
