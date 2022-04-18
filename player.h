@@ -121,7 +121,7 @@ typedef struct
 	ANIME motion;		//いま使ってるmotioの番号
 	STATUS status;		//今のステータス
 	DAMEGE damege;		//ダメージくらってるかくらってないか
-	COPY cipy;			//コピー
+	COPY copy;			//コピー
 	bool use;			//使ってるか使ってないか
 	bool notLoop;		//ループするかしないか
 	float consumption;	//計算用
@@ -140,7 +140,7 @@ void SizSet(void);//当たり判定取得
 void AnimationSet(int animation);//アニメーションの計算
 void MoveSet(void);	//ムーブセット
 void Collision(void);	//当たり判定まとめ
-void loadmotion(MODELDATAPLAYER* set ,int Setnumber);
+void Loadmotion(MODELDATAPLAYER* set ,int Setnumber);
 void SetCopy(void);
 PLAYER *GetPlayer(void);//ゲット
 MODELDATAPLAYER *GetModelData(void);//motionデータのゲット

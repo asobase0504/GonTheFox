@@ -232,7 +232,7 @@ void motionSet(FILE* pFile)
 		}
 		if (strcmp(&s_aString[0], "END_MOTIONSET") == 0)
 		{//一回のmotion読み込み切ったら次のmotionのセットに行くためにカウント初期化してデータを加算する
-			loadmotion(&s_ModelData[b], nMoveSet);
+			Loadmotion(&s_ModelData[b], nMoveSet);
 			b++;
 			nSetModel = 0;
 			break;
