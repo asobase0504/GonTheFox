@@ -72,7 +72,9 @@
     <ClInclude Include="file.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="enemy.h">
+    <ClInclude Include="motion.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>    <ClInclude Include="enemy.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
@@ -137,7 +139,9 @@
     <ClCompile Include="file.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="enamy.cpp">
+    <ClCompile Include="motion.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>    <ClCompile Include="enamy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="model.cpp">
