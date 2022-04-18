@@ -30,37 +30,17 @@
 #define LOOD_FILE_NOME_AITEMEZ "ez/item.txt"
 #define LOOD_FILE_NOME_AITEMNO "no/item.txt"
 #define LOOD_FILE_NOME_AITEMHD "hd/item.txt"
-#define MAX_MODELPARTS (9)
-#define MAX_KEY2  (5)
 
-//キーの構造体//
-typedef struct
-{
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3  rot;
-}kEY;
 
-//キーセットの構造体//
-typedef struct
-{
-	int KeyFrame;
-	kEY key[MAX_MODELPARTS];
-}kEYSET;
 
-//modelデータの構造体//
-typedef struct
-{
-	int  LOOP;		// ループするかどうか[0:ループしない / 1 : ループする]
-	int NUM_KEY;  	// キー数
-	kEYSET KeySet[MAX_KEY2];
-}ModelData;
 
 //=====================================
 // プロトタイプ宣言
 //=====================================
 // 制御関数
+void	SetFile(char *Filename);
 void	LoadSetFile(char *Filename);
 void	OutputSetFile(void);
-
+void	LoadCopy(char *Filename);
 #endif
 

@@ -11,66 +11,48 @@
 #include "camera.h"
 #include "utility.h"
 #include "file.h"
-
 #include "title.h"
-
 #include "sound.h"
 
-//------------------------------------
-// マクロ
-//------------------------------------
-
-#define Attenuation	(0.5f)		//減衰係数
-#define Speed	(1.0f)			//スピード
-#define WIDTH (10.0f)			//モデルの半径
-#define MAX_PRAYER (16)			//最大数
-#define MAX_MOVE (5)			//アニメーションの最大数
-#define INVINCIBLE (300)		//無敵時間
 //------------------------------------
 // static変数
 //------------------------------------
 static PLAYER s_Player;	// ポリゴンの構造体
 static MODELDATAPLAYER s_ModelData[MAX_MOVE];
-static int s_nTime, s_nParts;//タイマーとパーツの最大数
-static D3DXVECTOR3 mystery;
-static int s_nPow;//ジャンプパワー
 
-				  //=========================================
-				  // 初期化処理
-				  //=========================================
+static int s_time, s_parts;//タイマーとパーツの最大数
+static int s_pow;//ジャンプパワー
+static int nMotion;//
+//=========================================
+// 初期化処理
+//=========================================
 void InitPlayer(void)
 {
 	//カメラのデータ取得
 	Camera *pCamera;
 	pCamera = GetCamera();
 
-
-	s_nPow = 0;
+	s_pow = 0;
 	// 初期化処理
 	//縦　　　　　　　　　　//横
-	s_Player.RotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
+	s_Player.rotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
 	s_Player.consumption = 0.0f;
 	s_Player.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 頂点座標
 	s_Player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// 回転座標
-	s_Player.nShadow = 0;							//影番号
-	s_Player.Damege = DAMEGE_NORMAL;
-	s_Player.nMotion = ANIME_NORMAL;							//いま使ってるmotioの番号
-	s_Player.bUse = false;							//使ってるか使ってないか
-	s_Player.bMystery = false;						//大魔法の発動スイッチ
-	s_nParts = 0;
-	s_Player.ModelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
-	s_Player.ModelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	s_Player.shadow = 0;							//影番号
+	s_Player.damege = DAMEGE_NORMAL;
+	s_Player.motion = ANIME_NORMAL;							//いま使ってるmotioの番号
+	s_Player.use = false;							//使ってるか使ってないか
+	s_parts = 0;
+	s_Player.modelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+	s_Player.modelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	for (int nSet = 0; nSet < MAX_MODELPARTS; nSet++)
 	{
-		s_Player.Parts[nSet].nIdxModelParent = 0;
+		s_Player.Parts[nSet].idxModelParent = 0;
 	}
-	s_nTime = 0;
+	s_time = 0;
+	LoadSetFile("Data/system/Fox.txt");
 
-	//ファイル
-	LoadSetFile(LOOD_FILE_NAME_000);//0がプレイヤー
-
-//ファイル
-	LoadSetFile(LOOD_FILE_NAME_002);//0がプレイヤー
 }
 
 //=========================================
@@ -80,18 +62,18 @@ void UninitPlayer(void)
 {
 	StopSound();
 
-	for (int i = 0; i < s_nParts; i++)
+	for (int i = 0; i <= s_parts; i++)
 	{
 		// 頂点バッファーの解放
-		if (s_Player.Parts[i].pBuffMat != NULL)
+		if (s_Player.Parts[i].buffMat != NULL)
 		{
-			s_Player.Parts[i].pBuffMat->Release();
-			s_Player.Parts[i].pBuffMat = NULL;
+			s_Player.Parts[i].buffMat->Release();
+			s_Player.Parts[i].buffMat = NULL;
 		}
-		if (s_Player.Parts[i].pMesh != NULL)
+		if (s_Player.Parts[i].mesh != NULL)
 		{
-			s_Player.Parts[i].pMesh->Release();
-			s_Player.Parts[i].pMesh = NULL;
+			s_Player.Parts[i].mesh->Release();
+			s_Player.Parts[i].mesh = NULL;
 		}
 	}
 }
@@ -103,30 +85,80 @@ void UpdatePlayer(void)
 {
 	MoveSet();	//動きセット
 
-	//Collision();//床
+	Collision();//床
 
 	//			//アニメーションや足音の設定
-	if (s_Player.NotLoop == false)
+	if (s_Player.notLoop == false)
 	{
-		s_Player.nMotion = ANIME_NORMAL;
+		s_Player.motion = ANIME_NORMAL;
 	}
 	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_D) || GetKeyboardPress(DIK_S) ||
 		GetJoypadPress(JOYKEY_UP, 0) || GetJoypadPress(JOYKEY_DOWN, 0) || GetJoypadPress(JOYKEY_LEFT, 0) || GetJoypadPress(JOYKEY_RIGHT, 0))
 	{
-		s_Player.nMotion = ANIME_RUN;//歩く
+		s_Player.motion = ANIME_RUN;//歩く
 
 	}
-	
-	if (GetKeyboardTrigger(DIK_B))
+
+
+	if (GetKeyboardPress(DIK_SPACE) || GetJoypadPress(JOYKEY_A, 0) || GetJoypadPress(JOYKEY_UP, 0))
+	{//SPACEキーが押された
+		s_Player.pos.y = s_Player.pos.y + 5.0f;
+		s_pow++;
+		s_Player.motion = ANIME_JUMP;
+
+	}
+	else
 	{
-		s_Player.nMotion = ANIME_ATTACK;//攻撃
-		s_Player.NotLoop = true;
+		s_pow = 0;
+	}
+	if (s_pow >= 1 && s_pow <= 10)
+	{//ジャンプシステム
+		s_pow++;
+		s_Player.move.y = 1.00f* s_pow;
+	}
+
+
+	s_Player.move.y -= 1.0f;
+	if (GetKeyboardPress(DIK_B))
+	{
+		s_Player.motion = ANIME_ATTACK;//攻撃
+
+		s_Player.notLoop = true;
+	}
+	if (GetKeyboardPress(DIK_N))
+	{
+		s_Player.notLoop = true;
+	}
+	if (GetKeyboardPress(DIK_J))
+	{
+		s_Player.copy = COPY_SWORD;
+		SetCopy();
+	}
+	if (GetKeyboardPress(DIK_H))
+	{
+		s_Player.copy = COPY_FIRE;
+		SetCopy();
+	}
+	if (GetKeyboardPress(DIK_F))
+	{
+		s_Player.copy = COPY_LASER;
+		SetCopy();
+	}
+	if (GetKeyboardPress(DIK_G))
+	{
+		s_Player.copy = COPY_CUTTER;
+		SetCopy();
+	}
+	if (GetKeyboardPress(DIK_K))
+	{
+		s_Player.copy = COPY_NORMAL;
+		SetCopy();
 	}
 	////影更新
 	////SetposShadow(s_Player.nShadow, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y, s_Player.pos.z));
 
 
-	AnimationSet((int)s_Player.nMotion);//アニメーション再生
+	AnimationSet((int)s_Player.motion);//アニメーション再生
 
 
 }
@@ -142,35 +174,35 @@ void DrawPlayer(void)
 	D3DXMATERIAL *pMat;
 	D3DXVECTOR3 scale(1.8f, 1.8f, 1.8f);
 
-	if (s_Player.bUse)//使ってるやつ出す
+	if (s_Player.use)//使ってるやつ出す
 	{
 		// ワールドマトリックスの初期化
 		// 行列初期化関数(第1引数の行列を単位行列に初期化)
-		D3DXMatrixIdentity(&s_Player.MtxWorld);
+		D3DXMatrixIdentity(&s_Player.mtxWorld);
 
 		// 拡縮を反映
 		// 行列拡縮関数
 		D3DXMatrixScaling(&mtxScale, scale.x, scale.y, scale.z);
 		// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		D3DXMatrixMultiply(&s_Player.MtxWorld, &s_Player.MtxWorld, &mtxScale);
+		D3DXMatrixMultiply(&s_Player.mtxWorld, &s_Player.mtxWorld, &mtxScale);
 
 		// 向きを反映
 		// 行列回転関数(第1引数にヨー(y)ピッチ(x)ロール(z)方向の回転行列を作成)
 		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_Player.rot.y, s_Player.rot.x, s_Player.rot.z);
 		// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		D3DXMatrixMultiply(&s_Player.MtxWorld, &s_Player.MtxWorld, &mtxRot);
+		D3DXMatrixMultiply(&s_Player.mtxWorld, &s_Player.mtxWorld, &mtxRot);
 
 		// 位置を反映
 		// 行列移動関数(第１引数にX,Y,Z方向の移動行列を作成)
 		D3DXMatrixTranslation(&mtxTrans, s_Player.pos.x, s_Player.pos.y, s_Player.pos.z);
 		// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		D3DXMatrixMultiply(&s_Player.MtxWorld, &s_Player.MtxWorld, &mtxTrans);
+		D3DXMatrixMultiply(&s_Player.mtxWorld, &s_Player.mtxWorld, &mtxTrans);
 
-		for (int i = 0; i < s_nParts; i++)
+		for (int i = 0; i < s_parts; i++)
 		{
 			// ワールドマトリックスの初期化
 			// 行列初期化関数(第1引数の行列を単位行列に初期化)
-			D3DXMatrixIdentity(&s_Player.Parts[i].MtxWorld);
+			D3DXMatrixIdentity(&s_Player.Parts[i].mtxWorld);
 
 			//// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
 			//D3DXMatrixMultiply(&s_Player.Parts[i].MtxWorld, &s_Player.Parts[i].MtxWorld, &mtxScale);
@@ -179,44 +211,44 @@ void DrawPlayer(void)
 			// 行列回転関数(第1引数にヨー(y)ピッチ(x)ロール(z)方向の回転行列を作成)
 			D3DXMatrixRotationYawPitchRoll(&mtxRot, s_Player.Parts[i].rot.y, s_Player.Parts[i].rot.x, s_Player.Parts[i].rot.z);
 			// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-			D3DXMatrixMultiply(&s_Player.Parts[i].MtxWorld, &s_Player.Parts[i].MtxWorld, &mtxRot);
+			D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxRot);
 
 			// 位置を反映
 			// 行列移動関数(第１引数にX,Y,Z方向の移動行列を作成)
 			D3DXMatrixTranslation(&mtxTrans, s_Player.Parts[i].pos.x, s_Player.Parts[i].pos.y, s_Player.Parts[i].pos.z);
 			// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-			D3DXMatrixMultiply(&s_Player.Parts[i].MtxWorld, &s_Player.Parts[i].MtxWorld, &mtxTrans);
+			D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxTrans);
 
 			D3DXMATRIX mtxParent;
 
 			//現在のマテリアルを獲得
 			pDevice->GetMaterial(&marDef);
 
-			if (s_Player.Parts[i].nIdxModelParent == -1)
+			if (s_Player.Parts[i].idxModelParent == -1)
 			{//親
-				mtxParent = s_Player.MtxWorld;
+				mtxParent = s_Player.mtxWorld;
 			}
 			else
 			{//子
-				mtxParent = s_Player.Parts[s_Player.Parts[i].nIdxModelParent].MtxWorld;
+				mtxParent = s_Player.Parts[s_Player.Parts[i].idxModelParent].mtxWorld;
 			}
 
 			//親と子の融合
-			D3DXMatrixMultiply(&s_Player.Parts[i].MtxWorld, &s_Player.Parts[i].MtxWorld, &mtxParent);
+			D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxParent);
 
 			// ワールド座標行列の設定
-			pDevice->SetTransform(D3DTS_WORLD, &s_Player.Parts[i].MtxWorld);
+			pDevice->SetTransform(D3DTS_WORLD, &s_Player.Parts[i].mtxWorld);
 			//マテリアルデータのポインタを取得
-			pMat = (D3DXMATERIAL*)s_Player.Parts[i].pBuffMat->GetBufferPointer();
+			pMat = (D3DXMATERIAL*)s_Player.Parts[i].buffMat->GetBufferPointer();
 
-			for (int j = 0; j < (int)s_Player.Parts[i].nNumMat; j++)
+			for (int j = 0; j < (int)s_Player.Parts[i].numMat; j++)
 			{
 				//テクスチャの設定
 				pDevice->SetTexture(0, NULL);
 				//マテリアルの設定
 				pDevice->SetMaterial(&pMat[j].MatD3D);
 				//モデルパーツの描画
-				s_Player.Parts[i].pMesh->DrawSubset(j);
+				s_Player.Parts[i].mesh->DrawSubset(j);
 			}
 		}
 		//現在のマテリアルを元に戻す
@@ -226,47 +258,42 @@ void DrawPlayer(void)
 
 
 
-void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *Filename, int nParent, int nIndex, D3DXVECTOR3 nModelPos)
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent, int index)
 {
 	//カメラのデータ取得
 	Camera *pCamera = GetCamera();
 
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	char aFile[128] = FILE_3D_PLAYER;
-
-	strcat(aFile, &Filename[0]);//合成　aFile＜-こいつに入れる
-
-	D3DXLoadMeshFromX(&aFile[0],
+	D3DXLoadMeshFromX(filename,
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
-		&s_Player.Parts[s_nParts].pBuffMat,
+		&s_Player.Parts[s_parts].buffMat,
 		NULL,
-		&s_Player.Parts[s_nParts].nNumMat,
-		&s_Player.Parts[s_nParts].pMesh
+		&s_Player.Parts[s_parts].numMat,
+		&s_Player.Parts[s_parts].mesh
 	);
 
-	s_Player.Parts[s_nParts].nIdxModelParent = nParent;
-	s_Player.RotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
+	s_Player.Parts[s_parts].idxModelParent = parent;
+	s_Player.rotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
 
 	// 初期化処理
-	s_Player.pos = nModelPos;		//初回座標設定
-	s_Player.Parts[s_nParts].pos = pos;	// 頂点座標
-	s_Player.Parts[s_nParts].posOri = s_Player.Parts[s_nParts].pos;
-	s_Player.Parts[s_nParts].posdefault = s_Player.Parts[s_nParts].pos;
-	s_Player.Parts[s_nParts].rot = rot;	// 回転座標
-	s_Player.Parts[s_nParts].rotOri = s_Player.Parts[s_nParts].rot;
-	s_Player.Parts[s_nParts].rotdefault = s_Player.Parts[s_nParts].rot;
+	s_Player.Parts[s_parts].pos = pos;	// 頂点座標
+	s_Player.Parts[s_parts].posOri = s_Player.Parts[s_parts].pos;
+	s_Player.Parts[s_parts].posdefault = s_Player.Parts[s_parts].pos;
+	s_Player.Parts[s_parts].rot = rot;	// 回転座標
+	s_Player.Parts[s_parts].rotOri = s_Player.Parts[s_parts].rot;
+	s_Player.Parts[s_parts].rotdefault = s_Player.Parts[s_parts].rot;
 
-	s_Player.bUse = true;
+	s_Player.use = true;
 
-	if (s_Player.Parts[s_nParts].nIdxModelParent == -1)
+	if (s_Player.Parts[s_parts].idxModelParent == -1)
 	{
 		SizSet();
 		//s_Player.nShadow = SetShadow(s_Player.pos, s_Player.rot, 0);//場所.回転
 	}
-	s_nParts++;
+	s_parts++;
 }
 
 //--------------------------
@@ -282,42 +309,42 @@ void SizSet(void)
 	BYTE *pVtxBuff;
 
 	//ここで頂点数を参照
-	NumVpx = s_Player.Parts[s_nParts].pMesh->GetNumVertices();
+	NumVpx = s_Player.Parts[s_parts].mesh->GetNumVertices();
 
 	//ここでサイズを入れる
-	sizeFVF = D3DXGetFVFVertexSize(s_Player.Parts[s_nParts].pMesh->GetFVF());
+	sizeFVF = D3DXGetFVFVertexSize(s_Player.Parts[s_parts].mesh->GetFVF());
 
 	//頂点バッファのロックしましょう
-	s_Player.Parts[s_nParts].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
+	s_Player.Parts[s_parts].mesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
 
 	for (int i = 0; i < NumVpx; i++)
 	{
 		D3DXVECTOR3 pVtx = *(D3DXVECTOR3*)pVtxBuff;
 		//それを使ってモデルの最大値と最小値を使って求める
 		//XYZ全部求める
-		if (pVtx.x < s_Player.ModelMin.x)
+		if (pVtx.x < s_Player.modelMin.x)
 		{
-			s_Player.ModelMin.x = pVtx.x;
+			s_Player.modelMin.x = pVtx.x;
 		}
-		if (pVtx.x > s_Player.ModelMax.x)
+		if (pVtx.x > s_Player.modelMax.x)
 		{
-			s_Player.ModelMax.x = pVtx.x;
+			s_Player.modelMax.x = pVtx.x;
 		}
-		if (pVtx.y < s_Player.ModelMin.y)
+		if (pVtx.y < s_Player.modelMin.y)
 		{
-			s_Player.ModelMin.y = pVtx.y;
+			s_Player.modelMin.y = pVtx.y;
 		}
-		if (pVtx.y > s_Player.ModelMax.y)
+		if (pVtx.y > s_Player.modelMax.y)
 		{
-			s_Player.ModelMax.y = pVtx.y;
+			s_Player.modelMax.y = pVtx.y;
 		}
-		if (pVtx.z < s_Player.ModelMin.z)
+		if (pVtx.z < s_Player.modelMin.z)
 		{
-			s_Player.ModelMin.z = pVtx.z;
+			s_Player.modelMin.z = pVtx.z;
 		}
-		if (pVtx.z > s_Player.ModelMax.z)
+		if (pVtx.z > s_Player.modelMax.z)
 		{
-			s_Player.ModelMax.z = pVtx.z;
+			s_Player.modelMax.z = pVtx.z;
 		}
 
 		//一個分求めたら次に生きたいので
@@ -326,27 +353,31 @@ void SizSet(void)
 	}
 
 	//頂点バッファのロックしましょう
-	s_Player.Parts[s_nParts].pMesh->UnlockVertexBuffer();
+	s_Player.Parts[s_parts].mesh->UnlockVertexBuffer();
 }
 
 //------------------------------
 //アニメーションセット
 //-------------------------------
-void AnimationSet(int Animation)
+void AnimationSet(int animation)
 {
-	s_ModelData[Animation].Key++;//カウント加算
+	s_ModelData[animation].key++;//カウント加算
 
-	if (s_ModelData[Animation].LOOP == 1)
+	if (s_ModelData[animation].loop == 1)
 	{//YESループ
-		if (s_ModelData[Animation].Key <= s_ModelData[Animation].KeySet[0].KeyFrame)
+		if (s_ModelData[animation].key <= s_ModelData[animation].KeySet[0].keyFrame)
 		{//キーフレーム加算入った
 
-			for (int i = 0; i < MAX_MODELPARTS; i++)
+			for (int i = 0; i < s_parts; i++)
 			{//パーツ全部に位置の移動などを入れる
+			 // 目的の位置と向きの算出
+				//s_Player.Parts[i].posdefault = (s_Player.Parts[i].posOri + s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos) - s_Player.Parts[i].pos;
+				//s_Player.Parts[i].posdefault = (s_Player.Parts[i].posOri + s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot) - s_Player.Parts[i].rot;
+				
+				D3DXVECTOR3 RotDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot - s_Player.Parts[i].rotOri);
+				D3DXVECTOR3 PosDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos - s_Player.Parts[i].posOri);
 
-				D3DXVECTOR3 RotDiff = (s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].key[i].rot - s_Player.Parts[i].rotOri);
-				D3DXVECTOR3 PosDiff = (s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].key[i].pos - s_Player.Parts[i].posOri);
-
+			
 				if (RotDiff.x > D3DX_PI)
 				{
 					RotDiff.x += D3DX_PI * 2;
@@ -374,73 +405,50 @@ void AnimationSet(int Animation)
 					RotDiff.y += -D3DX_PI * 2;
 				}
 
-				D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame);
-				D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame);
+				D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
+				D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
 
-				D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[Animation].Key + s_Player.Parts[i].rotOri;
-				D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[Animation].Key + s_Player.Parts[i].posOri;
+				D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].rotOri;
+				D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].posOri;
 
 				//バグったら正規化しなよ上のBy過去の浜田
 				s_Player.Parts[i].rot = RotFrame;
 				s_Player.Parts[i].pos = PosFrame;
 
-				//正規化
-				if (s_Player.Parts[i].rot.x > D3DX_PI)
-				{
-					s_Player.Parts[i].rot.x += D3DX_PI * 2;
-				}
-				if (s_Player.Parts[i].rot.x < -D3DX_PI)
-				{
-					s_Player.Parts[i].rot.x += -D3DX_PI * 2;
-				}
-				//正規化
-				if (s_Player.Parts[i].rot.z > D3DX_PI)
-				{
-					s_Player.Parts[i].rot.z += D3DX_PI * 2;
-				}
-				if (s_Player.Parts[i].rot.z < -D3DX_PI)
-				{
-					s_Player.Parts[i].rot.z += -D3DX_PI * 2;
-				}
-				//正規化
-				if (s_Player.Parts[i].rot.y > D3DX_PI)
-				{
-					s_Player.Parts[i].rot.y += D3DX_PI * 2;
-				}
-				if (s_Player.Parts[i].rot.y < -D3DX_PI)
-				{
-					s_Player.Parts[i].rot.y += -D3DX_PI * 2;
-				}
+				
 			}
 		}
 
-		if (s_ModelData[Animation].Key >= s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame)
+		if (s_ModelData[animation].key >= s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame)
 		{//アニメーションの更新してキーをゼロに戻します
 			for (int i = 0; i < MAX_MODELPARTS; i++)
 			{//パーツ全部に位置の移動などを入れる
 				s_Player.Parts[i].rotOri = s_Player.Parts[i].rot;
 				s_Player.Parts[i].posOri = s_Player.Parts[i].pos;
 			}
-			s_ModelData[Animation].NowKey++;									//次に更新
-			s_ModelData[Animation].Key = 0;										//キーをゼロにする
-			s_ModelData[Animation].NowKey %= s_ModelData[Animation].NUM_KEY;	//アニメーションの最大を超えたらゼロに戻す
-			s_Player.nMotion = ANIME_NORMAL;
+			s_ModelData[animation].nowKey++;									//次に更新
+			s_ModelData[animation].key = 0;										//キーをゼロにする
+			s_ModelData[animation].nowKey %= s_ModelData[animation].num_key;	//アニメーションの最大を超えたらゼロに戻す
+			s_Player.motion = ANIME_NORMAL;
 		}
 	}
 	else
 	{//NOTループ
-		for (int i = 0; i < MAX_MODELPARTS; i++)
+		for (int i = 0; i < s_parts; i++)
 		{//パーツ全部に位置の移動などを入れる
 
-			D3DXVECTOR3 RotDiff = (s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].key[i].rot - s_Player.Parts[i].rotOri);
-			D3DXVECTOR3 PosDiff = (s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].key[i].pos - s_Player.Parts[i].posOri);
+			D3DXVECTOR3 RotDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot - s_Player.Parts[i].rotOri);
+			D3DXVECTOR3 PosDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos - s_Player.Parts[i].posOri);
+			
+		
 
-			D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame);
-			D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame);
+			D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
+			D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
 
-			D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[Animation].Key + s_Player.Parts[i].rotOri;
-			D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[Animation].Key + s_Player.Parts[i].posOri;
+			D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].rotOri;
+			D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].posOri;
 
+			
 			//バグったら正規化しなよ上のBy過去の浜田
 			s_Player.Parts[i].rot = RotFrame;
 			s_Player.Parts[i].pos = PosFrame;
@@ -452,7 +460,7 @@ void AnimationSet(int Animation)
 		}
 	}
 
-	if (s_ModelData[Animation].Key >= s_ModelData[Animation].KeySet[s_ModelData[Animation].NowKey].KeyFrame)
+	if (s_ModelData[animation].key >= s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame)
 	{//アニメーションの更新してキーをゼロに戻します
 
 		for (int i = 0; i < MAX_MODELPARTS; i++)
@@ -460,17 +468,17 @@ void AnimationSet(int Animation)
 			s_Player.Parts[i].rotOri = s_Player.Parts[i].rot;
 			s_Player.Parts[i].posOri = s_Player.Parts[i].pos;
 		}
-		s_ModelData[Animation].NowKey++;									//次に更新
-		s_ModelData[Animation].Key = 0;										//キーをゼロにする
-		if (s_ModelData[Animation].NowKey == s_ModelData[Animation].NUM_KEY)
+		s_ModelData[animation].nowKey++;									//次に更新
+		s_ModelData[animation].key = 0;										//キーをゼロにする
+		if (s_ModelData[animation].nowKey == s_ModelData[animation].num_key)
 		{
 			for (int i = 0; i < MAX_MODELPARTS; i++)
 			{//パーツ全部に位置の移動などを入れる
 				s_Player.Parts[i].rotOri = s_Player.Parts[i].rotdefault;
 				s_Player.Parts[i].posOri = s_Player.Parts[i].posdefault;
 			}
-			s_ModelData[Animation].NowKey = 0;
-			s_Player.NotLoop = false;
+			s_ModelData[animation].nowKey = 0;
+			s_Player.notLoop = false;
 
 		}
 	}
@@ -498,21 +506,21 @@ void MoveSet(void)
 		s_Player.move.x += sinf(pCamera->rot.y)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y)*Speed*nDash;
 
-		s_Player.consumption = s_Player.RotMove.x - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x - s_Player.rot.y + pCamera->rot.y;
 	}
 	else if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < -0.5f)
 	{//左に半分より多く倒したら
 		s_Player.move.x += sinf(pCamera->rot.y)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y)*Speed*nDash;
 
-		s_Player.consumption = s_Player.RotMove.x - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x - s_Player.rot.y + pCamera->rot.y;
 	}
 	else if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).y > 0.5f)
 	{//上に半分より多く倒したら
 		s_Player.move.x += sinf(pCamera->rot.y - D3DX_PI)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y - D3DX_PI)*Speed*nDash;
 
-		s_Player.consumption = (s_Player.RotMove.x -
+		s_Player.consumption = (s_Player.rotMove.x -
 			D3DX_PI - s_Player.rot.y
 			+ pCamera->rot.y);
 	}
@@ -521,7 +529,7 @@ void MoveSet(void)
 		s_Player.move.x += sinf(pCamera->rot.y)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y)*Speed*nDash;
 
-		s_Player.consumption = s_Player.RotMove.x - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x - s_Player.rot.y + pCamera->rot.y;
 	}
 	if (GetKeyboardPress(DIK_W) || GetJoypadPress(JOYKEY_UP, 0))
 	{//W押したとき上加速
@@ -529,7 +537,7 @@ void MoveSet(void)
 		s_Player.move.x += sinf(pCamera->rot.y)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y)*Speed*nDash;
 
-		s_Player.consumption = s_Player.RotMove.x - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x - s_Player.rot.y + pCamera->rot.y;
 	}
 	if (GetKeyboardPress(DIK_S) || GetJoypadPress(JOYKEY_DOWN, 0))
 	{//S押したと下加速
@@ -537,7 +545,7 @@ void MoveSet(void)
 		s_Player.move.x += sinf(pCamera->rot.y - D3DX_PI)*Speed*nDash;
 		s_Player.move.z += cosf(pCamera->rot.y - D3DX_PI)*Speed*nDash;
 
-		s_Player.consumption = (s_Player.RotMove.x -
+		s_Player.consumption = (s_Player.rotMove.x -
 			D3DX_PI - s_Player.rot.y
 			+ pCamera->rot.y);
 	}
@@ -548,7 +556,7 @@ void MoveSet(void)
 		s_Player.move.z += cosf(D3DX_PI *0.5f + pCamera->rot.y)*Speed*nDash;
 
 
-		s_Player.consumption = s_Player.RotMove.x + (D3DX_PI*0.5f) - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x + (D3DX_PI*0.5f) - s_Player.rot.y + pCamera->rot.y;
 	}
 
 	if (GetKeyboardPress(DIK_A) || GetJoypadPress(JOYKEY_LEFT, 0))
@@ -557,19 +565,21 @@ void MoveSet(void)
 		s_Player.move.x += sinf(-D3DX_PI *0.5f + pCamera->rot.y)*Speed*nDash;
 		s_Player.move.z += cosf(-D3DX_PI *0.5f + pCamera->rot.y)*Speed*nDash;
 
-		s_Player.consumption = s_Player.RotMove.x - (D3DX_PI*0.5f) - s_Player.rot.y + pCamera->rot.y;
+		s_Player.consumption = s_Player.rotMove.x - (D3DX_PI*0.5f) - s_Player.rot.y + pCamera->rot.y;
 
 	}
 	s_Player.posOld = s_Player.pos;//過去の移動量を保存
 
-	s_Player.move.x += (0.0f - s_Player.move.x)*0.5f;//（目的の値-現在の値）＊減衰係数
-	s_Player.move.z += (0.0f - s_Player.move.z)*0.5f;
-	s_Player.pos += s_Player.move;//移動を加算
+	
 
 	if (s_Player.invincible <= 0)
 	{//無敵時間がゼロになったらダメージくらうようにする
-		s_Player.Damege = DAMEGE_NORMAL;
+		s_Player.damege = DAMEGE_NORMAL;
 	}
+
+	s_Player.move.x += (0.0f - s_Player.move.x)*0.5f;//（目的の値-現在の値）＊減衰係数
+	s_Player.move.z += (0.0f - s_Player.move.z)*0.5f;
+	s_Player.pos += s_Player.move;//移動を加算
 
 	//正規化
 	if (s_Player.consumption > D3DX_PI)
@@ -584,7 +594,7 @@ void MoveSet(void)
 	//減算設定（感性）
 	s_Player.rot.y += (s_Player.consumption)* Attenuation;//目的の値-現在の値）＊減衰係数
 
-														  //正規化
+	//正規化
 	if (s_Player.rot.y > D3DX_PI)
 	{
 		s_Player.rot.y += -D3DX_PI * 2;
@@ -594,17 +604,58 @@ void MoveSet(void)
 		s_Player.rot.y += D3DX_PI * 2;
 	}
 
-	//ゲーム以外の時の時の移動方法
+
 }
-//------------------------------
+//-------------------------------
 //当たり判定まとめ
 //-------------------------------
 void Collision(void)
 {
+	if (s_Player.pos.y <= 0.0f)
+	{
+		s_Player.pos.y = 0.0f;
+	}
+}
 
-	
-	
+//-------------------------------
+//モーションをロードする処理
+//-------------------------------
+void  Loadmotion(MODELDATAPLAYER* set, int Setnumber)
+{
+	s_ModelData[nMotion] = *set;
+	nMotion++;
+}
 
+//-------------------------------
+//コピーを処理
+//-------------------------------
+void SetCopy(void)
+{
+	nMotion = 0;
+	if (s_parts >= 8)
+	{
+		s_parts = 7;
+	}
+	
+	switch (s_Player.copy)
+	{
+	case COPY_SWORD:
+		LoadCopy("Data/system/sword.txt");
+		break;
+	case COPY_FIRE:
+		LoadCopy("Data/system/flare.txt");
+		break;
+	case COPY_LASER:
+		LoadCopy("Data/system/Laser.txt");
+		break;
+	case COPY_CUTTER:
+		LoadCopy("Data/system/Cutter.txt");
+		break;
+	default:
+		LoadCopy("Data/system/Nomar.txt");
+		break;
+	}
+	
 }
 
 //----------------------
@@ -613,12 +664,4 @@ void Collision(void)
 PLAYER *GetPlayer(void)
 {
 	return &s_Player;
-}
-
-//----------------------
-//ゲット(motion)
-//----------------------
-MODELDATAPLAYER *GetModelData(void)
-{
-	return &s_ModelData[0];
 }

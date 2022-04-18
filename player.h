@@ -9,8 +9,19 @@
 
 #include "main.h"
 
+//------------------------------------
+// マクロ
+//------------------------------------
+
+#define Attenuation	(0.5f)		//減衰係数
+#define Speed	(1.0f)			//スピード
+#define WIDTH (10.0f)			//モデルの半径
+#define MAX_PRAYER (16)			//最大数
+#define MAX_MOVE (9)			//アニメーションの最大数
+#define INVINCIBLE (300)		//無敵時間
 #define MAX_MODELPARTS (9)
 #define MAX_KEY  (6)
+#define MAX_COPY  (4)
 
 typedef enum
 {
@@ -19,9 +30,9 @@ typedef enum
 	ANIME_ATTACK,	//攻撃
 	ANIME_JUMP,		//ジャンプ
 	ANIME_LANDING,	//着地
-
 	ANIME_MAX
 }ANIME;
+
 
 typedef enum
 {
@@ -41,6 +52,15 @@ typedef enum
 	DAMEGE_MAX
 }DAMEGE;
 
+typedef enum
+{
+	COPY_NORMAL = 0,//ニュートラル
+	COPY_SWORD,		//ソード
+	COPY_FIRE,		//ファイア
+	COPY_LASER,		//レーザー
+	COPY_CUTTER,	//カッター
+	COPY_MAX
+}COPY;
 
 //キーの構造体//
 typedef struct
@@ -52,36 +72,36 @@ typedef struct
 //キーセットの構造体//
 typedef struct
 {
-	int KeyFrame;
+	int keyFrame;
 	KEYPLAYER key[MAX_MODELPARTS];
 }KEYSETPLAYER;
 
 //modelデータの構造体//
 typedef struct
 {
-	int Key;		//時間管理
-	int NowKey;		//今のキー
-	int LOOP;		// ループするかどうか[0:ループしない / 1 : ループする]
-	int NUM_KEY;  	// キー数
+	int key;		//時間管理
+	int nowKey;		//今のキー
+	int loop;		// ループするかどうか[0:ループしない / 1 : ループする]
+	int num_key;  	// キー数
 	KEYSETPLAYER KeySet[MAX_KEY];
 }MODELDATAPLAYER;
 
 //モデルの構造体//
 typedef struct
 {
-	D3DXVECTOR3 ModelMin;		//当たり判定最小
-	D3DXVECTOR3 ModelMax;		//当たり判定最大
-	D3DXMATRIX MtxWorld;		//マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
-	LPD3DXMESH pMesh;			//パーツのメッシュ
-	LPD3DXBUFFER pBuffMat;		//パーツのバッファ
-	DWORD nNumMat;				//パーツのマット
+	D3DXVECTOR3 modelMin;		//当たり判定最小
+	D3DXVECTOR3 modelMax;		//当たり判定最大
+	D3DXMATRIX mtxWorld;		//マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
+	LPD3DXMESH mesh;			//パーツのメッシュ
+	LPD3DXBUFFER buffMat;		//パーツのバッファ
+	DWORD numMat;				//パーツのマット
 	D3DXVECTOR3 pos;			//パーツのポス
 	D3DXVECTOR3 posOri;			//オリジナル
 	D3DXVECTOR3 posdefault;		//最初
 	D3DXVECTOR3 rot;			//パーツのロット
 	D3DXVECTOR3 rotOri;			//オリジナル
 	D3DXVECTOR3 rotdefault;		//最初
-	int nIdxModelParent;         //親のインデックス       aModel[   ] の番号
+	int idxModelParent;         //親のインデックス       aModel[   ] の番号
 }ModelParts;
 
 typedef struct
@@ -91,21 +111,22 @@ typedef struct
 	D3DXVECTOR3 posOld;	//位置過去
 	D3DXVECTOR3 move;	//ムーブ
 	D3DXVECTOR3 rot;	//回転	
-	D3DXVECTOR3 RotMove;//回転ムーブ
-	D3DXVECTOR3 ModelMin;//サイズ最小
-	D3DXVECTOR3 ModelMax;//サイズ最大
-	D3DXMATRIX MtxWorld; //マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
-	int nType;			//タイプ
-	int nShadow;		//影番号
+	D3DXVECTOR3 rotMove;//回転ムーブ
+	D3DXVECTOR3 modelMin;//サイズ最小
+	D3DXVECTOR3 modelMax;//サイズ最大
+	D3DXMATRIX mtxWorld; //マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
+	int type;			//タイプ
+	int shadow;		//影番号
 	int invincible;		//無敵時間
-	ANIME nMotion;		//いま使ってるmotioの番号
-	STATUS Status;		//今のステータス
-	DAMEGE Damege;		//ダメージくらってるかくらってないか
-	bool bUse;			//使ってるか使ってないか
-	bool bMystery;		//まほう使うか使わないか
-	bool NotLoop;		//ループするかしないか
+	ANIME motion;		//いま使ってるmotioの番号
+	STATUS status;		//今のステータス
+	DAMEGE damege;		//ダメージくらってるかくらってないか
+	COPY copy;			//コピー
+	bool use;			//使ってるか使ってないか
+	bool notLoop;		//ループするかしないか
 	float consumption;	//計算用
 }PLAYER;
+
 
 
 //プロトタイプ宣言
@@ -114,11 +135,13 @@ void UninitPlayer(void);//破棄
 void UpdatePlayer(void);//更新
 void DrawPlayer(void);//描画
 
-void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *Filename, int nParent,int nIndex, D3DXVECTOR3 nModelPos);//セット引数座標と読み込むファイル名
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent,int index);//セット引数座標と読み込むファイル名
 void SizSet(void);//当たり判定取得
-void AnimationSet(int Animation);//アニメーションの計算
+void AnimationSet(int animation);//アニメーションの計算
 void MoveSet(void);	//ムーブセット
 void Collision(void);	//当たり判定まとめ
+void Loadmotion(MODELDATAPLAYER* set ,int Setnumber);
+void SetCopy(void);
 PLAYER *GetPlayer(void);//ゲット
 MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
 #endif
