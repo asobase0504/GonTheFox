@@ -61,8 +61,6 @@ void UninitCamera(void)
 void UpdateCamera(void)
 {
 	//InputCamera();
-
-	//D3DXVECTOR3 vec = s_camera.posV - s_camera.posR;
 }
 
 //==================================================
