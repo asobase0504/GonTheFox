@@ -192,7 +192,7 @@ void LoadSetFile(char *Filename)
 					}
 					if (strcmp(&s_aString[0], "END_PARTSSET") == 0)
 					{//プレイヤーの場合
-						SetPlayer(s_modelpos, s_modelrot, modelFilename[nIndex], nParent, nIndex);
+						//SetPlayer(s_modelpos, s_modelrot, modelFilename[nIndex], nParent, nIndex);
 						break;
 					}
 				}			
@@ -407,7 +407,7 @@ void LoadCopy(char *Filename)
 					}
 					if (strcmp(&aString[0], "END_PARTSSET") == 0)
 					{//プレイヤーの場合
-						SetPlayer(s_modelpos, s_modelrot, modelFilename, nParent, nIndex);
+						//SetPlayer(s_modelpos, s_modelrot, modelFilename, nParent, nIndex);
 						break;
 					}
 				}

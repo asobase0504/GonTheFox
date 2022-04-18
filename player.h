@@ -8,6 +8,7 @@
 #define _PLAYER_H_
 
 #include "main.h"
+#include "motion.h"
 
 //------------------------------------
 // マクロ
@@ -20,16 +21,16 @@
 #define MAX_MOVE (9)			//アニメーションの最大数
 #define INVINCIBLE (300)		//無敵時間
 #define MAX_MODELPARTS (9)
-#define MAX_KEY  (6)
+//#define MAX_KEY  (6)
 #define MAX_COPY  (4)
 
 typedef enum
 {
 	ANIME_NORMAL = 0,	//ニュートラル
-	ANIME_RUN,		//歩き
-	ANIME_ATTACK,	//攻撃
-	ANIME_JUMP,		//ジャンプ
-	ANIME_LANDING,	//着地
+	ANIME_RUN,			//歩き
+	ANIME_ATTACK,		//攻撃
+	ANIME_JUMP,			//ジャンプ
+	ANIME_LANDING,		//着地
 	ANIME_MAX
 }ANIME;
 
@@ -86,45 +87,40 @@ typedef struct
 	KEYSETPLAYER KeySet[MAX_KEY];
 }MODELDATAPLAYER;
 
-//モデルの構造体//
 typedef struct
 {
-	D3DXVECTOR3 modelMin;		//当たり判定最小
-	D3DXVECTOR3 modelMax;		//当たり判定最大
-	D3DXMATRIX mtxWorld;		//マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
-	LPD3DXMESH mesh;			//パーツのメッシュ
-	LPD3DXBUFFER buffMat;		//パーツのバッファ
-	DWORD numMat;				//パーツのマット
-	D3DXVECTOR3 pos;			//パーツのポス
-	D3DXVECTOR3 posOri;			//オリジナル
-	D3DXVECTOR3 posdefault;		//最初
-	D3DXVECTOR3 rot;			//パーツのロット
-	D3DXVECTOR3 rotOri;			//オリジナル
-	D3DXVECTOR3 rotdefault;		//最初
-	int idxModelParent;         //親のインデックス       aModel[   ] の番号
-}ModelParts;
+	D3DXVECTOR3			pos;							//位置
+	D3DXVECTOR3			posOld;							//位置過去
+	D3DXVECTOR3			move;							//ムーブ
+	D3DXVECTOR3			rot;							//回転	
+	D3DXVECTOR3			rotMove;						//回転ムーブ
+	D3DXVECTOR3			modelMin;						//サイズ最小
+	D3DXVECTOR3			modelMax;						//サイズ最大
+	D3DXMATRIX			mtxWorld;						//マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
 
-typedef struct
-{
-	ModelParts Parts[MAX_MODELPARTS];	//modelの数
-	D3DXVECTOR3 pos;	//位置
-	D3DXVECTOR3 posOld;	//位置過去
-	D3DXVECTOR3 move;	//ムーブ
-	D3DXVECTOR3 rot;	//回転	
-	D3DXVECTOR3 rotMove;//回転ムーブ
-	D3DXVECTOR3 modelMin;//サイズ最小
-	D3DXVECTOR3 modelMax;//サイズ最大
-	D3DXMATRIX mtxWorld; //マトリックス//ポリゴンの位置や回転行列すべてをつめてるナニカ
-	int type;			//タイプ
-	int shadow;		//影番号
-	int invincible;		//無敵時間
-	ANIME motion;		//いま使ってるmotioの番号
-	STATUS status;		//今のステータス
-	DAMEGE damege;		//ダメージくらってるかくらってないか
-	COPY copy;			//コピー
-	bool use;			//使ってるか使ってないか
-	bool notLoop;		//ループするかしないか
-	float consumption;	//計算用
+	STATUS				status;							//今のステータス
+	DAMEGE				damege;							//ダメージくらってるかくらってないか
+	COPY				copy;							//コピー
+
+	PARTS				Parts[MAX_MODELPARTS];			// モデルパーツ
+	PARTSFILE			PartsFile[MAX_MODELPARTS];		//パーツファイル
+	MOTION				motion[ANIME_MAX];				// モーション
+	ANIME				MotionType;						// モーションタイプ(現在)
+	ANIME				MotionTypeOld;					// モーションタイプ(過去)
+	int					nMaxModelType;					// モデルのタイプ数
+	int					nMaxModelParts;					// 扱うモデルパーツ数
+	int					nMaxMotion;						// モーション数
+
+	int					type;							//タイプ
+	int					shadow;							//影番号
+	int					invincible;						//無敵時間
+	float				consumption;					//計算用
+
+	bool				bMotionBlend;					// モーションブレンド
+	bool				bMotion;						// モーションを使用状況
+
+	bool				use;							//使ってるか使ってないか
+	bool				notLoop;						//ループするかしないか
 }PLAYER;
 
 
@@ -135,7 +131,7 @@ void UninitPlayer(void);//破棄
 void UpdatePlayer(void);//更新
 void DrawPlayer(void);//描画
 
-void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot, char *filename, int parent,int index);//セット引数座標と読み込むファイル名
+void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot);//セット引数座標と読み込むファイル名
 void SizSet(void);//当たり判定取得
 void AnimationSet(int animation);//アニメーションの計算
 void MoveSet(void);	//ムーブセット

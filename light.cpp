@@ -34,15 +34,12 @@ void InitLight(void)
 	ZeroMemory(s_light, sizeof(s_light));
 
 	// ライトの設定
-	SetLight(D3DLIGHT_DIRECTIONAL,D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f), D3DXVECTOR3(0.2f, -0.8f, 0.4f), 0);
-	SetLight(D3DLIGHT_DIRECTIONAL,D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f), D3DXVECTOR3(0.2f, -0.8f, -0.4f), 1);
-	SetLight(D3DLIGHT_DIRECTIONAL, D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f), D3DXVECTOR3(-0.2f, 0.8f, 0.4f), 2);
-	//SetLight(D3DLIGHT_DIRECTIONAL, D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f), D3DXVECTOR3(-0.2f, 0.8f, 0.4f), 3);
+	SetLight(D3DLIGHT_DIRECTIONAL, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, 1.0f), 0);
+	SetLight(D3DLIGHT_DIRECTIONAL, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, 1.0f, 0.0f), 1);
+	SetLight(D3DLIGHT_DIRECTIONAL, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f), 2);
 
 	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	pDevice->SetRenderState(D3DRS_AMBIENT, 0xff363333);
+	GetDevice()->SetRenderState(D3DRS_AMBIENT, 0xffffffff);
 }
 
 //=========================================
