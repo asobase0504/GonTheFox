@@ -155,6 +155,7 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mode.h" />
+    <ClInclude Include="motion.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="rectangle2D.h" />
     <ClInclude Include="rectangle3D.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mode.cpp" />
+    <ClCompile Include="motion.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="rectangle2D.cpp" />
     <ClCompile Include="rectangle3D.cpp" />
