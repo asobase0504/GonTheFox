@@ -24,6 +24,17 @@ static MODELDATAPLAYER s_ModelData[MAX_MOVE];
 static int s_time, s_parts;//タイマーとパーツの最大数
 static int s_pow;//ジャンプパワー
 static int nMotion;//
+
+//------------------------------------
+// プロトタイプ宣言
+//------------------------------------
+static void SetCopy(void);		// コピーの設定
+static void Collision(void);	// 当たり判定まとめ
+static void SizSet(void);//当たり判定取得
+static void AnimationSet(int animation);//アニメーションの計算
+static void MoveSet(void);	//ムーブセット
+static MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
+
 //=========================================
 // 初期化処理
 //=========================================
@@ -320,7 +331,7 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	//g_nIdxShadow[nCntPlayer] = SetShadow(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));	//影の設定処理の初期化
 
 	// ファイルの読み込み
-	LoodSetMotion("Data/system/Fox.txt", &s_Player.PartsFile[0], &s_Player.Parts[0], &s_Player.motion[0], &s_Player.nMaxModelParts);
+	LoodSetMotion("Data/system/Fox.txt", s_Player.PartsFile, s_Player.Parts, s_Player.motion, &s_Player.nMaxModelParts);
 
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -545,12 +556,12 @@ void AnimationSet(int animation)
 	//			s_Player.Parts[i].rot = RotFrame;
 	//			s_Player.Parts[i].pos = PosFrame;
 
-				//正規化
-				NormalizeAngle(&s_Player.Parts[i].rot.y);
-				NormalizeAngle(&s_Player.Parts[i].rot.z);
-				
-			}
-		}
+		//		//正規化
+		//		NormalizeAngle(&s_Player.Parts[i].rot.y);
+		//		NormalizeAngle(&s_Player.Parts[i].rot.z);
+		//		
+		//	}
+		//}
 
 	//	if (s_ModelData[animation].key >= s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame)
 	//	{//アニメーションの更新してキーをゼロに戻します
