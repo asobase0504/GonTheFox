@@ -121,6 +121,8 @@ typedef struct
 
 	bool				use;							//使ってるか使ってないか
 	bool				notLoop;						//ループするかしないか
+
+	 char				aFirename[256];//
 }PLAYER;
 
 
@@ -132,12 +134,9 @@ void UpdatePlayer(void);//更新
 void DrawPlayer(void);//描画
 
 void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot);//セット引数座標と読み込むファイル名
-void SizSet(void);//当たり判定取得
-void AnimationSet(int animation);//アニメーションの計算
+
 void MoveSet(void);	//ムーブセット
 void Collision(void);	//当たり判定まとめ
-void Loadmotion(MODELDATAPLAYER* set ,int Setnumber);
-void SetCopy(void);
-PLAYER *GetPlayer(void);//ゲット
-MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
+void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts);
+
 #endif

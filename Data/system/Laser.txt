@@ -7,16 +7,21 @@
 SCRIPT			# この行は絶対消さないこと！
 
 #------------------------------------------------------------------------------
+# モデル数
+#------------------------------------------------------------------------------
+NUM_MODEL = 8
+
+#------------------------------------------------------------------------------
 # モデルファイル名
 #------------------------------------------------------------------------------
 
-MODEL_FILENAME = data/MODEL/Fox/Laser.x			
+MODEL_FILENAME = Data/MODEL/Fox/Laser.x			
 
 #------------------------------------------------------------------------------
 # キャラクター情報
 #------------------------------------------------------------------------------
 CHARACTERSET
-
+	
 
 PARTSSET						# [７]合体剣
 	PARENT = 1					# (親)
@@ -24,6 +29,7 @@ PARTSSET						# [７]合体剣
 	POS = -1.0 8.0 -13.0
 	ROT = 0.0 3.14 0.00
 END_PARTSSET
+
 END_CHARACTERSET
 
  
@@ -83,7 +89,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -126,7 +132,7 @@ MOTIONSET
 		
 			KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
@@ -180,7 +186,7 @@ MOTIONSET
 		
 			KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -223,7 +229,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
@@ -281,7 +287,7 @@ MOTIONSET
 
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -324,7 +330,7 @@ MOTIONSET
 
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -367,7 +373,7 @@ MOTIONSET
 
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
@@ -427,7 +433,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -470,7 +476,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -513,7 +519,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -556,7 +562,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
@@ -610,7 +616,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 
@@ -653,7 +659,7 @@ MOTIONSET
 		
 		KEY	# ----- [ 7 ] -----
 			POS = 0.00 0.00 0.00
-			ROT = 0.0 3.14 0.00
+			ROT = 0.00 0.00 0.00
 		END_KEY
 	END_KEYSET
 END_MOTIONSET
