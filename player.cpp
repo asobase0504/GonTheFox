@@ -58,7 +58,7 @@ void InitPlayer(void)
 
 	s_Player.modelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
 	s_Player.modelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	s_Player.use = true;
+	s_Player.isUse = true;
 
 	s_time = 0;
 
@@ -218,7 +218,7 @@ void DrawPlayer(void)
 	D3DXMATERIAL *pMat= {};
 	D3DXVECTOR3 scale(1.8f, 1.8f, 1.8f);
 
-	if (s_Player.use)//使ってるやつ出す
+	if (s_Player.isUse)//使ってるやつ出す
 	{
 		// ワールドマトリックスの初期化
 		// 行列初期化関数(第1引数の行列を単位行列に初期化)
@@ -274,7 +274,7 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	s_Player.MotionTypeOld = s_Player.MotionType;											// ニュートラルモーション
 	s_Player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);											// 移動量
 	s_Player.bMotionBlend = false;															// モーションブレンドの使用状況
-	s_Player.use = true;																	// 使用状況
+	s_Player.isUse = true;																	// 使用状況
 	//g_nIdxShadow[nCntPlayer] = SetShadow(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));	//影の設定処理の初期化
 
 

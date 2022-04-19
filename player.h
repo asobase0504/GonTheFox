@@ -119,7 +119,7 @@ typedef struct
 	bool				bMotionBlend;					// モーションブレンド
 	bool				bMotion;						// モーションを使用状況
 
-	bool				use;							//使ってるか使ってないか
+	bool				isUse;							//使ってるか使ってないか
 	bool				notLoop;						//ループするかしないか
 
 	 char				aFirename[256];//

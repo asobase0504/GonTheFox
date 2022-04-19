@@ -23,6 +23,16 @@
 //#define MAX_KEY  (6)
 #define MAX_COPY  (4)
 
+enum class ENEMY_TYPE
+{
+	FILE = 0,	// 炎の敵
+	SWORD,		// 剣の敵
+	ATTACK,		//攻撃
+	JUMP,		//ジャンプ
+	LANDING,	//着地
+	MAX
+};
+
 typedef enum
 {
 	ANIME_NORMAL = 0,	//ニュートラル
@@ -32,7 +42,6 @@ typedef enum
 	ANIME_LANDING,		//着地
 	ANIME_MAX
 }ANIME;
-
 
 typedef enum
 {
@@ -118,7 +127,7 @@ typedef struct
 	bool		bMotionBlend;				// モーションブレンド
 	bool		bMotion;					// モーションを使用状況
 
-	bool		use;						// 使ってるか使ってないか
+	bool		isUse;						// 使ってるか使ってないか
 	bool		notLoop;					// ループするかしないか
 }Enemy;
 
