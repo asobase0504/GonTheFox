@@ -14,13 +14,13 @@ NUM_MODEL = 7
 #------------------------------------------------------------------------------
 # モデルファイル名
 #------------------------------------------------------------------------------
-MODEL_FILENAME = data/MODEL/Fox/karada.x 	# からだ
-MODEL_FILENAME = data/MODEL/Fox/kao.x		# かお
-MODEL_FILENAME = data/MODEL/Fox/asi.x		# 右前足
-MODEL_FILENAME = data/MODEL/Fox/asi.x	 	# 左前足
-MODEL_FILENAME = data/MODEL/Fox/asi.x	 	# 右後ろ足
-MODEL_FILENAME = data/MODEL/Fox/asi.x		# 左後ろ足
-MODEL_FILENAME = data/MODEL/Fox/sipo.x		# しっぽ
+MODEL_FILENAME = Data/MODEL/Fox/karada.x 	# からだ
+MODEL_FILENAME = Data/MODEL/Fox/kao.x		# かお
+MODEL_FILENAME = Data/MODEL/Fox/asi.x		# 右前足
+MODEL_FILENAME = Data/MODEL/Fox/asi.x	 	# 左前足
+MODEL_FILENAME = Data/MODEL/Fox/asi.x	 	# 右後ろ足
+MODEL_FILENAME = Data/MODEL/Fox/asi.x		# 左後ろ足
+MODEL_FILENAME = Data/MODEL/Fox/sipo.x		# しっぽ
 
 
 #------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ END_MOTIONSET
 # 移動モーション
 #---------------------------------------
 MOTIONSET
-	LOOP = 1		# ループするかどうか[0:ループしない / 1:ループする]
+	LOOP = 0		# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 2		# キー数
 
 	KEYSET			# --- << KEY : 0 / 2 >> ---

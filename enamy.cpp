@@ -124,19 +124,19 @@ void UpdateEnemy(void)
 			pEnemy->MotionType = ANIME_NORMAL;
 		}
 
-		MoveSet();	//動きセット
+		MoveSet();		// 動きセット
 
-		Collision();//床
+		Collision();	// 床
 
-		//			//アニメーションや足音の設定
-		if (pEnemy->notLoop == false)
+		// アニメーションや足音の設定
+		if (!pEnemy->notLoop)
 		{
 			pEnemy->MotionType = ANIME_NORMAL;
 		}
 		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_D) || GetKeyboardPress(DIK_S) ||
 			GetJoypadPress(JOYKEY_UP, 0) || GetJoypadPress(JOYKEY_DOWN, 0) || GetJoypadPress(JOYKEY_LEFT, 0) || GetJoypadPress(JOYKEY_RIGHT, 0))
 		{
-			pEnemy->MotionType = ANIME_RUN;//歩く
+			pEnemy->MotionType = ANIME_RUN;	// 歩く
 
 		}
 
@@ -500,8 +500,6 @@ void MoveSet(void)
 		}
 		pEnemy->posOld = pEnemy->pos;	// 過去の移動量を保存
 
-
-
 		if (pEnemy->invincible <= 0)
 		{// 無敵時間がゼロになったらダメージくらうようにする
 			pEnemy->damege = DAMEGE_NORMAL;
@@ -588,19 +586,14 @@ void SetCopy(void)
 		switch (pEnemy->copy)
 		{
 		case COPY_SWORD:
-			LoadCopy("Data/system/sword.txt");
 			break;
 		case COPY_FIRE:
-			LoadCopy("Data/system/flare.txt");
 			break;
 		case COPY_LASER:
-			LoadCopy("Data/system/Laser.txt");
 			break;
 		case COPY_CUTTER:
-			LoadCopy("Data/system/Cutter.txt");
 			break;
 		default:
-			LoadCopy("Data/system/Nomar.txt");
 			break;
 		}
 	}

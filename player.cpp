@@ -10,7 +10,6 @@
 #include "input.h"
 #include "camera.h"
 #include "utility.h"
-#include "file.h"
 #include "title.h"
 #include "sound.h"
 #include "motion.h"
@@ -63,10 +62,6 @@ void InitPlayer(void)
 
 	s_time = 0;
 
-	/*LoadSetFile("Data/system/Fox.txt");*/
-	
-	//LoodSetMotion("Data/system/Fox.txt", &s_Player.PartsFile[0], &s_Player.Parts[0], &s_Player.motion[0], &s_Player.nMaxModelParts);
-
 	SetPlayer(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 }
 
@@ -77,7 +72,7 @@ void UninitPlayer(void)
 {
 	StopSound();
 
-	for (int i = 0; i <= s_parts; i++)
+	for (int i = 0; i <= MAX_MODELPARTS; i++)
 	{
 		// 頂点バッファーの解放
 		if (s_Player.Parts[i].pBuffer != NULL)
@@ -154,28 +149,35 @@ void UpdatePlayer(void)
 	}
 	if (GetKeyboardPress(DIK_J))
 	{
+
 		s_Player.copy = COPY_SWORD;
-		SetCopy();
+		// ファイルの読み込み
+		SetCopy("Data/system/sword.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_H))
 	{
 		s_Player.copy = COPY_FIRE;
-		SetCopy();
+		// ファイルの読み込み
+		SetCopy("Data/system/flare.txt", &s_Player.PartsFile[7], 
+					&s_Player.Parts[7], &s_Player.motion[0],
+					&s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_F))
 	{
 		s_Player.copy = COPY_LASER;
-		SetCopy();
+		// ファイルの読み込み	
+		SetCopy("Data/system/Laser.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_G))
 	{
 		s_Player.copy = COPY_CUTTER;
-		SetCopy();
+		// ファイルの読み込み
+		SetCopy("Data/system/Cutter.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_K))
 	{
 		s_Player.copy = COPY_NORMAL;
-		SetCopy();
+		s_Player.nMaxModelParts = 7;
 	}
 	////影更新
 	////SetposShadow(s_Player.nShadow, D3DXVECTOR3(s_Player.pos.x, s_Player.pos.y, s_Player.pos.z));
@@ -248,63 +250,9 @@ void DrawPlayer(void)
 			mtxTrans,										// 計算用マトリックス
 			&marDef,										// マテリアル保存変数
 			pMat);											// マテリアルデータ
-		//for (int i = 0; i < s_parts; i++)
-		//{
-		//	// ワールドマトリックスの初期化
-		//	// 行列初期化関数(第1引数の行列を単位行列に初期化)
-		//	D3DXMatrixIdentity(&s_Player.Parts[i].mtxWorld);
+	
 
 		//	//// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		//	//D3DXMatrixMultiply(&s_Player.Parts[i].MtxWorld, &s_Player.Parts[i].MtxWorld, &mtxScale);
-
-		//	// 向きを反映
-		//	// 行列回転関数(第1引数にヨー(y)ピッチ(x)ロール(z)方向の回転行列を作成)
-		//	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_Player.Parts[i].rot.y, s_Player.Parts[i].rot.x, s_Player.Parts[i].rot.z);
-		//	// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		//	D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxRot);
-
-		//	// 位置を反映
-		//	// 行列移動関数(第１引数にX,Y,Z方向の移動行列を作成)
-		//	D3DXMatrixTranslation(&mtxTrans, s_Player.Parts[i].pos.x, s_Player.Parts[i].pos.y, s_Player.Parts[i].pos.z);
-		//	// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
-		//	D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxTrans);
-
-		//	D3DXMATRIX mtxParent;
-
-		//	//現在のマテリアルを獲得
-		//	pDevice->GetMaterial(&marDef);
-
-		//	if (s_Player.Parts[i].idxModelParent == -1)
-		//	{//親
-		//		mtxParent = s_Player.mtxWorld;
-		//	}
-		//	else
-		//	{//子
-		//		mtxParent = s_Player.Parts[s_Player.Parts[i].idxModelParent].mtxWorld;
-		//	}
-
-		//	//親と子の融合
-		//	D3DXMatrixMultiply(&s_Player.Parts[i].mtxWorld, &s_Player.Parts[i].mtxWorld, &mtxParent);
-
-		//	// ワールド座標行列の設定
-		//	pDevice->SetTransform(D3DTS_WORLD, &s_Player.Parts[i].mtxWorld);
-		//	//マテリアルデータのポインタを取得
-		//	pMat = (D3DXMATERIAL*)s_Player.Parts[i].buffMat->GetBufferPointer();
-
-		//	for (int j = 0; j < (int)s_Player.Parts[i].numMat; j++)
-		//	{
-		//		//テクスチャの設定
-		//		pDevice->SetTexture(0, NULL);
-		//		//マテリアルの設定
-		//		pDevice->SetMaterial(&pMat[j].MatD3D);
-		//		//モデルパーツの描画
-		//		s_Player.Parts[i].mesh->DrawSubset(j);
-		//	}
-		//}
-
-		
-
-		//現在のマテリアルを元に戻す
 		pDevice->SetMaterial(&marDef);
 	}
 }
@@ -315,20 +263,20 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	// プレイヤー情報の初期化
 	s_Player.pos = pos;																		// 位置の初期化
-	s_Player.posOld = s_Player.pos;												// 過去位置の初期化
-	s_Player.posOld = s_Player.pos;												// 過去位置の初期化
+	s_Player.posOld = s_Player.pos;															// 過去位置の初期化
+	s_Player.posOld = s_Player.pos;															// 過去位置の初期化
 	s_Player.rot = rot;																		// 向きの初期化
-	s_Player.modelMin = D3DXVECTOR3(100, 100, 100);		// 頂点座標の最小値
-	s_Player.modelMax = D3DXVECTOR3(-100, -100, -100);	// 頂点座標の最大値
+	s_Player.modelMin = D3DXVECTOR3(100, 100, 100);											// 頂点座標の最小値
+	s_Player.modelMax = D3DXVECTOR3(-100, -100, -100);										// 頂点座標の最大値
 	s_Player.mtxWorld = {};																	// ワールドマトリックス
 	//s_Player.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);										// 目的の向き
-	s_Player.MotionType = ANIME_NORMAL;													// ニュートラルモーション
+	s_Player.MotionType = ANIME_NORMAL;														// ニュートラルモーション
 	s_Player.MotionTypeOld = s_Player.MotionType;											// ニュートラルモーション
 	s_Player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);											// 移動量
 	s_Player.bMotionBlend = false;															// モーションブレンドの使用状況
 	s_Player.use = true;																	// 使用状況
-	s_Player.bMotionBlend = false;																	// プレイヤーがディスクを持っていない
 	//g_nIdxShadow[nCntPlayer] = SetShadow(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));	//影の設定処理の初期化
+
 
 	// ファイルの読み込み
 	LoodSetMotion("Data/system/Fox.txt", s_Player.PartsFile, s_Player.Parts, s_Player.motion, &s_Player.nMaxModelParts);
@@ -440,197 +388,7 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 //--------------------------
 //当たり判定のサイズせってい
 //--------------------------
-void SizSet(void)
-{
-	////すべての頂点数を保存する関数を作る
-	//int NumVpx;	//頂点数
-	//			//一つの頂点のサイズを入れる関数
-	//DWORD sizeFVF;
-	////バイトがたのポインターchar
-	//BYTE *pVtxBuff;
 
-	////ここで頂点数を参照
-	//NumVpx = s_Player.Parts[s_parts].mesh->GetNumVertices();
-
-	////ここでサイズを入れる
-	//sizeFVF = D3DXGetFVFVertexSize(s_Player.Parts[s_parts].mesh->GetFVF());
-
-	////頂点バッファのロックしましょう
-	//s_Player.Parts[s_parts].mesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
-
-	//for (int i = 0; i < NumVpx; i++)
-	//{
-	//	D3DXVECTOR3 pVtx = *(D3DXVECTOR3*)pVtxBuff;
-	//	//それを使ってモデルの最大値と最小値を使って求める
-	//	//XYZ全部求める
-	//	if (pVtx.x < s_Player.modelMin.x)
-	//	{
-	//		s_Player.modelMin.x = pVtx.x;
-	//	}
-	//	if (pVtx.x > s_Player.modelMax.x)
-	//	{
-	//		s_Player.modelMax.x = pVtx.x;
-	//	}
-	//	if (pVtx.y < s_Player.modelMin.y)
-	//	{
-	//		s_Player.modelMin.y = pVtx.y;
-	//	}
-	//	if (pVtx.y > s_Player.modelMax.y)
-	//	{
-	//		s_Player.modelMax.y = pVtx.y;
-	//	}
-	//	if (pVtx.z < s_Player.modelMin.z)
-	//	{
-	//		s_Player.modelMin.z = pVtx.z;
-	//	}
-	//	if (pVtx.z > s_Player.modelMax.z)
-	//	{
-	//		s_Player.modelMax.z = pVtx.z;
-	//	}
-
-	//	//一個分求めたら次に生きたいので
-	//	pVtxBuff += sizeFVF;
-	//	//これをやれば最大最小を求められる
-	//}
-
-	////頂点バッファのロックしましょう
-	//s_Player.Parts[s_parts].mesh->UnlockVertexBuffer();
-}
-
-//------------------------------
-//アニメーションセット
-//-------------------------------
-void AnimationSet(int animation)
-{
-	//s_ModelData[animation].key++;//カウント加算
-
-	//if (s_ModelData[animation].loop == 1)
-	//{//YESループ
-	//	if (s_ModelData[animation].key <= s_ModelData[animation].KeySet[0].keyFrame)
-	//	{//キーフレーム加算入った
-
-	//		for (int i = 0; i < s_parts; i++)
-	//		{//パーツ全部に位置の移動などを入れる
-	//		 // 目的の位置と向きの算出
-	//			//s_Player.Parts[i].posdefault = (s_Player.Parts[i].posOri + s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos) - s_Player.Parts[i].pos;
-	//			//s_Player.Parts[i].posdefault = (s_Player.Parts[i].posOri + s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot) - s_Player.Parts[i].rot;
-	//			
-	//			D3DXVECTOR3 RotDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot - s_Player.Parts[i].rotOri);
-	//			D3DXVECTOR3 PosDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos - s_Player.Parts[i].posOri);
-
-	//		
-	//			if (RotDiff.x > D3DX_PI)
-	//			{
-	//				RotDiff.x += D3DX_PI * 2;
-	//			}
-	//			if (RotDiff.x < -D3DX_PI)
-	//			{
-	//				RotDiff.x += -D3DX_PI * 2;
-	//			}
-	//			//正規化
-	//			if (RotDiff.z > D3DX_PI)
-	//			{
-	//				RotDiff.z += D3DX_PI * 2;
-	//			}
-	//			if (RotDiff.z < -D3DX_PI)
-	//			{
-	//				RotDiff.z += -D3DX_PI * 2;
-	//			}
-	//			//正規化
-	//			if (RotDiff.y > D3DX_PI)
-	//			{
-	//				RotDiff.y += D3DX_PI * 2;
-	//			}
-	//			if (RotDiff.y < -D3DX_PI)
-	//			{
-	//				RotDiff.y += -D3DX_PI * 2;
-	//			}
-
-	//			D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
-	//			D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
-
-	//			D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].rotOri;
-	//			D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].posOri;
-
-	//			//バグったら正規化しなよ上のBy過去の浜田
-	//			s_Player.Parts[i].rot = RotFrame;
-	//			s_Player.Parts[i].pos = PosFrame;
-
-		//		//正規化
-		//		NormalizeAngle(&s_Player.Parts[i].rot.y);
-		//		NormalizeAngle(&s_Player.Parts[i].rot.z);
-		//		
-		//	}
-		//}
-
-	//	if (s_ModelData[animation].key >= s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame)
-	//	{//アニメーションの更新してキーをゼロに戻します
-	//		for (int i = 0; i < MAX_MODELPARTS; i++)
-	//		{//パーツ全部に位置の移動などを入れる
-	//			s_Player.Parts[i].rotOri = s_Player.Parts[i].rot;
-	//			s_Player.Parts[i].posOri = s_Player.Parts[i].pos;
-	//		}
-	//		s_ModelData[animation].nowKey++;									//次に更新
-	//		s_ModelData[animation].key = 0;										//キーをゼロにする
-	//		s_ModelData[animation].nowKey %= s_ModelData[animation].num_key;	//アニメーションの最大を超えたらゼロに戻す
-	//		s_Player.MotionType = ANIME_NORMAL;
-	//	}
-	//}
-	//else
-	//{//NOTループ
-	//	for (int i = 0; i < s_parts; i++)
-	//	{//パーツ全部に位置の移動などを入れる
-
-	//		D3DXVECTOR3 RotDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].rot - s_Player.Parts[i].rotOri);
-	//		D3DXVECTOR3 PosDiff = (s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].key[i].pos - s_Player.Parts[i].posOri);
-	//		
-	//	
-
-	//		D3DXVECTOR3 RotOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
-	//		D3DXVECTOR3 PosOneFrame = (RotDiff / (float)s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame);
-
-	//		D3DXVECTOR3 RotFrame = RotOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].rotOri;
-	//		D3DXVECTOR3 PosFrame = PosOneFrame * (float)s_ModelData[animation].key + s_Player.Parts[i].posOri;
-
-	//		
-	//		//バグったら正規化しなよ上のBy過去の浜田
-	//		s_Player.Parts[i].rot = RotFrame;
-	//		s_Player.Parts[i].pos = PosFrame;
-
-	//		//正規化
-	//		NormalizeAngle(&s_Player.Parts[i].rot.x);
-	//		NormalizeAngle(&s_Player.Parts[i].rot.y);
-	//		NormalizeAngle(&s_Player.Parts[i].rot.z);
-	//	}
-	//}
-
-	//if (s_ModelData[animation].key >= s_ModelData[animation].KeySet[s_ModelData[animation].nowKey].keyFrame)
-	//{//アニメーションの更新してキーをゼロに戻します
-
-	//	for (int i = 0; i < MAX_MODELPARTS; i++)
-	//	{//パーツ全部に位置の移動などを入れる
-	//		s_Player.Parts[i].rotOri = s_Player.Parts[i].rot;
-	//		s_Player.Parts[i].posOri = s_Player.Parts[i].pos;
-	//	}
-	//	s_ModelData[animation].nowKey++;									//次に更新
-	//	s_ModelData[animation].key = 0;										//キーをゼロにする
-	//	if (s_ModelData[animation].nowKey == s_ModelData[animation].num_key)
-	//	{
-	//		for (int i = 0; i < MAX_MODELPARTS; i++)
-	//		{//パーツ全部に位置の移動などを入れる
-	//			s_Player.Parts[i].rotOri = s_Player.Parts[i].rotdefault;
-	//			s_Player.Parts[i].posOri = s_Player.Parts[i].posdefault;
-	//		}
-	//		s_ModelData[animation].nowKey = 0;
-	//		s_Player.notLoop = false;
-
-	//	}
-	//}
-}
-
-//------------------------------
-//動きセット
-//-------------------------------
 void MoveSet(void)
 {
 	Camera *pCamera;
@@ -764,41 +522,213 @@ void Collision(void)
 //-------------------------------
 //モーションをロードする処理
 //-------------------------------
-void  Loadmotion(MODELDATAPLAYER* set, int Setnumber)
+void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts)
 {
-	s_ModelData[nMotion] = *set;
-	nMotion++;
-}
+	// 変数宣言
+	char aString[128] = {};			// 文字列比較用の変数
+	char g_aEqual[128] = {};		// ＝読み込み用変数
+	int	nCntKeySet = 0;				// KeySetカウント
+	int	nCntKey = 0;				// Keyカウント
 
+									// ファイルポインタの宣言
+	FILE * pFile;
 //-------------------------------
 //コピーを処理
-//-------------------------------
-void SetCopy(void)
-{
-	nMotion = 0;
-	if (s_parts >= 8)
+	if (s_Player.nMaxModelParts >= 7)
 	{
-		s_parts = 7;
+		s_Player.nMaxModelParts = 7;
 	}
 	
-	switch (s_Player.copy)
+	pFile = fopen(pFileName, "r");
+
+	if (pFile != NULL)
 	{
-	case COPY_SWORD:
-		LoadCopy("Data/system/sword.txt");
-		break;
-	case COPY_FIRE:
-		LoadCopy("Data/system/flare.txt");
-		break;
-	case COPY_LASER:
-		LoadCopy("Data/system/Laser.txt");
-		break;
-	case COPY_CUTTER:
-		LoadCopy("Data/system/Cutter.txt");
-		break;
-	default:
-		LoadCopy("Data/system/Nomar.txt");
-		break;
+		fscanf(pFile, "%s", &aString);
+
+		while (strncmp(&aString[0], "SCRIPT", 6) != 0)
+		{// 文字列が一致した場合
+			aString[0] = {};
+			// 文字列の読み込み
+			fscanf(pFile, "%s", &aString[0]);
+		}
+		while (strncmp(&aString[0], "END_SCRIPT", 10) != 0)
+		{
+			fscanf(pFile, "%s", &aString[0]);
+
+			if (strncmp(&aString[0], "#", 1) == 0)
+			{// 一列読み込む
+				fgets(&aString[0], sizeof(aString), pFile);
+			}
+
+			if (strcmp(&aString[0], "MODEL_FILENAME") == 0)
+			{// ファイル名の読み込み
+				fscanf(pFile, "%s", &g_aEqual[0]);
+				fscanf(pFile, "%s", &PartsFile->aName[0]);
+
+			}
+
+			if (strcmp(&aString[0], "CHARACTERSET") == 0)
+			{// キャラクターの読み込み
+				while (strcmp(&aString[0], "END_CHARACTERSET") != 0)
+				{
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strncmp(&aString[0], "#", 1) == 0)
+					{// 一列読み込む
+						fgets(&aString[0], sizeof(aString), pFile);
+					}
+					if (strcmp(&aString[0], "PARTSSET") == 0)
+					{// パーツの読み込み
+						while (strcmp(&aString[0], "END_PARTSSET") != 0)
+						{
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strncmp(&aString[0], "#", 1) == 0)
+							{// 一列読み込む
+								fgets(&aString[0], sizeof(aString), pFile);
+							}
+
+							if (strcmp(&aString[0], "INDEX") == 0)
+							{// タイプの読み込み
+								fscanf(pFile, "%s", &g_aEqual[0]);
+								fscanf(pFile, "%d", &Parts->nType);
+							}
+							if (strcmp(&aString[0], "PARENT") == 0)
+							{// 親の読み込み
+								fscanf(pFile, "%s", &g_aEqual[0]);
+								fscanf(pFile, "%d", &Parts->nIdxModelParent);
+							}
+							if (strcmp(&aString[0], "POS") == 0)
+							{// 位置の読み込み
+								fscanf(pFile, "%s", &g_aEqual[0]);
+								fscanf(pFile, "%f", &Parts->pos.x);
+								fscanf(pFile, "%f", &Parts->pos.y);
+								fscanf(pFile, "%f", &Parts->pos.z);
+							}
+							if (strcmp(&aString[0], "ROT") == 0)
+							{// 向きの読み込み
+								fscanf(pFile, "%s", &g_aEqual[0]);
+								fscanf(pFile, "%f", &Parts->rot.x);
+								fscanf(pFile, "%f", &Parts->rot.y);
+								fscanf(pFile, "%f", &Parts->rot.z);
+							}
+						}
+					}
+				
+				}
+			}
+			if (strcmp(&aString[0], "MOTIONSET") == 0)
+			{// モーションの読み込み
+				while (strcmp(&aString[0], "END_MOTIONSET") != 0)
+				{
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strncmp(&aString[0], "#", 1) == 0)
+					{// 一列読み込む
+						fgets(&aString[0], sizeof(aString), pFile);
+					}
+
+					if (strcmp(&aString[0], "LOOP") == 0)
+					{// ループ有無の読み込み
+						fscanf(pFile, "%s", &g_aEqual[0]);
+						fscanf(pFile, "%d", (int*)(&Motion->bLoop));
+					}
+					if (strcmp(&aString[0], "NUM_KEY") == 0)
+					{// キー数の読み込み
+						fscanf(pFile, "%s", &g_aEqual[0]);
+						fscanf(pFile, "%d", &Motion->nNumKey);
+					}
+					if (strcmp(&aString[0], "KEYSET") == 0)
+					{// キーセットの読み込み
+						while (strcmp(&aString[0], "END_KEYSET") != 0)
+						{
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strncmp(&aString[0], "#", 1) == 0)
+							{// 一列読み込む
+								fgets(&aString[0], sizeof(aString), pFile);
+							}
+
+							if (strcmp(&aString[0], "FRAME") == 0)
+							{// フレーム数の読み込み
+								fscanf(pFile, "%s", &g_aEqual[0]);
+								fscanf(pFile, "%d", &Motion->keySet[nCntKeySet].nFrame);
+							}
+							if (strcmp(&aString[0], "KEY") == 0)
+							{// キーの読み込み
+								while (strcmp(&aString[0], "END_KEY") != 0)
+								{
+									fscanf(pFile, "%s", &aString[0]);
+
+									if (strncmp(&aString[0], "#", 1) == 0)
+									{// 一列読み込む
+										fgets(&aString[0], sizeof(aString), pFile);
+									}
+
+									if (strcmp(&aString[0], "POS") == 0)
+									{// 位置の読み込み
+										fscanf(pFile, "%s", &g_aEqual[0]);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].pos.x);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].pos.y);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].pos.z);
+									}
+									if (strcmp(&aString[0], "ROT") == 0)
+									{// 向きの読み込み
+										fscanf(pFile, "%s", &g_aEqual[0]);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].rot.x);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].rot.y);
+										fscanf(pFile, "%f", &Motion->keySet[nCntKeySet].key[nCntKey].rot.z);
+									}
+								}
+
+								// キーカウントのインクリメント
+								nCntKey++;
+							}
+						}
+
+						// キーカウントの初期化
+						nCntKey = 0;
+
+						// キーセットカウントのインクリメント
+						nCntKeySet++;
+					}
+				}
+				// キーセットカウントの初期化
+				nCntKeySet = 0;
+
+				// パーツ情報のインクリメント
+				Motion++;
+			}
+
+		}
+
+		//ファイルを閉じる
+		fclose(pFile);
 	}
+	else
+	{//ファイルが開けない場合
+		printf("\n * * * ファイルが開けません * * * \n");
+	}
+
+	
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// 位置と向きの初期値を保存
+	s_Player.Parts[s_Player.nMaxModelParts].posOrigin = s_Player.Parts[s_Player.nMaxModelParts].pos;
+	s_Player.Parts[s_Player.nMaxModelParts].rotOrigin = s_Player.Parts[s_Player.nMaxModelParts].rot;
+
+	// Xファイルの読み込み
+	D3DXLoadMeshFromX(&s_Player.PartsFile[s_Player.Parts[s_Player.nMaxModelParts].nType].aName[0],
+		D3DXMESH_SYSTEMMEM,
+		pDevice,
+		NULL,
+		&s_Player.Parts[s_Player.nMaxModelParts].pBuffer,
+		NULL,
+		&s_Player.Parts[s_Player.nMaxModelParts].nNumMat,
+		&s_Player.Parts[s_Player.nMaxModelParts].pMesh);
+
+	
+		s_Player.nMaxModelParts++;
 	
 }
 

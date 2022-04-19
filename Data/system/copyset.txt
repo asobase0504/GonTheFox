@@ -16,30 +16,27 @@ NUM_COPY = 5
 #------------------------------------------------------------------------------
 PLAYERSET
 	COPY_NUMBER = 0
-	MOTION_FILENAME = Data/system/Fox.txt
+	MOTION_FILENAME = data/system/Fox.txt
 END_PLAYERSET
-
-
-END_SCRIPT		# この行は絶対消さないこと！
 
 PLAYERSET
 	COPY_NUMBER = 1
-	MOTION_FILENAME =Data/system/sword.txt
+	MOTION_FILENAME =data/system/sword.txt
 END_PLAYERSET
 
 PLAYERSET
 	COPY_NUMBER = 2
-	MOTION_FILENAME = Data/system/flare.txt
+	MOTION_FILENAME = data/system/flare.txt
 END_PLAYERSET
 
 PLAYERSET
 	COPY_NUMBER = 3
-	MOTION_FILENAME = Data/system/Laser.txt
+	MOTION_FILENAME = data/system/Laser.txt
 END_PLAYERSET
 
 PLAYERSET
 	COPY_NUMBER = 4
-	MOTION_FILENAME = Data/system/Cutter.txt
+	MOTION_FILENAME = data/system/Cutter.txt
 END_PLAYERSET
 
 

@@ -150,7 +150,6 @@
     <ClInclude Include="enemy.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="fan.h" />
-    <ClInclude Include="file.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
@@ -174,7 +173,6 @@
     <ClCompile Include="enamy.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="fan.cpp" />
-    <ClCompile Include="file.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
