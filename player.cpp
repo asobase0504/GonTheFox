@@ -130,7 +130,7 @@ void UpdatePlayer(void)
 	{
 		s_Player.MotionType = ANIME_ATTACK;//çUåÇ
 
-		s_Player.notLoop = true;
+		s_Player.bMotion = true;
 	}
 	if (GetKeyboardPress(DIK_N))
 	{
