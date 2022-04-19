@@ -105,7 +105,7 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 	MOTION *motion)						// モーション情報
 {
 	// 変数宣言
-	bool bMotion = false;
+	bool bMotion = true;
 
 	for (int nCntParts = 0; nCntParts < nMaxParts; nCntParts++)
 	{
@@ -153,7 +153,6 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 		{// 再生中のキー数カウントがキー数の最大値を超えたとき、そのモーションがループを使用している
 			// 再生中のキー数カウントを初期化
 			motion->nCntKeySet = 0;
-			bMotion = true;
 		}
 		else if (motion->nCntKeySet >= motion->nNumKey)
 		{
