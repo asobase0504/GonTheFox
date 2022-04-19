@@ -23,6 +23,17 @@ static MODELDATAPLAYER s_ModelData[MAX_MOVE];
 static int s_time, s_parts;//タイマーとパーツの最大数
 static int s_pow;//ジャンプパワー
 static int nMotion;//
+
+//------------------------------------
+// プロトタイプ宣言
+//------------------------------------
+static void SetCopy(void);		// コピーの設定
+static void Collision(void);	// 当たり判定まとめ
+static void SizSet(void);//当たり判定取得
+static void AnimationSet(int animation);//アニメーションの計算
+static void MoveSet(void);	//ムーブセット
+static MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
+
 //=========================================
 // 初期化処理
 //=========================================
@@ -241,7 +252,7 @@ void DrawPlayer(void)
 			pMat);											// マテリアルデータ
 	
 
-		//現在のマテリアルを元に戻す
+		//	//// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
 		pDevice->SetMaterial(&marDef);
 	}
 }
@@ -374,10 +385,10 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	}
 }
 
+//--------------------------
+//当たり判定のサイズせってい
+//--------------------------
 
-//------------------------------
-//動きセット
-//-------------------------------
 void MoveSet(void)
 {
 	Camera *pCamera;
@@ -509,7 +520,7 @@ void Collision(void)
 }
 
 //-------------------------------
-//コピーを処理
+//モーションをロードする処理
 //-------------------------------
 void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts)
 {
@@ -521,17 +532,17 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 
 									// ファイルポインタの宣言
 	FILE * pFile;
-
-
+//-------------------------------
+//コピーを処理
 	if (s_Player.nMaxModelParts >= 7)
 	{
 		s_Player.nMaxModelParts = 7;
 	}
-	//ファイルを開く
+	
 	pFile = fopen(pFileName, "r");
 
 	if (pFile != NULL)
-	{//ファイルが開いた場合
+	{
 		fscanf(pFile, "%s", &aString);
 
 		while (strncmp(&aString[0], "SCRIPT", 6) != 0)
@@ -699,7 +710,7 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 		printf("\n * * * ファイルが開けません * * * \n");
 	}
 
-	// デバイスの取得
+	
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	// 位置と向きの初期値を保存
