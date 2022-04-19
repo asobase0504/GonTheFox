@@ -99,6 +99,7 @@ void UpdatePlayer(void)
 	if (!s_Player.bMotion)
 	{// 使用してるモーションがない場合
 		s_Player.MotionType = ANIME_NORMAL;
+		s_Player.notLoop = false;
 	}
 
 	MoveSet();	//動きセット
@@ -117,13 +118,11 @@ void UpdatePlayer(void)
 
 	}
 
-
 	if (GetKeyboardPress(DIK_SPACE) || GetJoypadPress(JOYKEY_A, 0) || GetJoypadPress(JOYKEY_UP, 0))
 	{//SPACEキーが押された
 		s_Player.pos.y = s_Player.pos.y + 5.0f;
 		s_pow++;
 		s_Player.MotionType = ANIME_JUMP;
-
 	}
 	else
 	{

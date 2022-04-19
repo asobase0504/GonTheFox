@@ -98,7 +98,7 @@ void SetParts(int nMaxParts,		// パーツ数
 }
 
 //---------------------------------------------------------------------------
-// プレイヤーのモーション処理
+// モーション処理
 //---------------------------------------------------------------------------
 bool PlayMotion(int nMaxParts,			// パーツ数
 	PARTS *Parts,						// パーツ情報
@@ -140,7 +140,7 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 
 	// フレームカウントの加算
 	motion->nCntFrame++;
-
+	
 	if (motion->nCntFrame >= motion->keySet[motion->nCntKeySet].nFrame)
 	{// フレームカウントが指定のフレーム数を超えた場合
 		// フレーム数の初期化
@@ -153,6 +153,7 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 		{// 再生中のキー数カウントがキー数の最大値を超えたとき、そのモーションがループを使用している
 			// 再生中のキー数カウントを初期化
 			motion->nCntKeySet = 0;
+
 		}
 		else if (motion->nCntKeySet >= motion->nNumKey)
 		{
