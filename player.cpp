@@ -268,7 +268,7 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 
 
 	// ファイルの読み込み
-	LoodSetMotion("Data/system/Fox.txt", &s_Player.PartsFile[0], &s_Player.Parts[0], &s_Player.motion[0], &s_Player.nMaxModelParts);
+	LoodSetMotion("Data/system/Fox.txt", s_Player.PartsFile, s_Player.Parts, s_Player.motion, &s_Player.nMaxModelParts);
 
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
