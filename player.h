@@ -63,66 +63,52 @@ typedef enum
 	COPY_MAX
 }COPY;
 
-//ƒL[‚Ì\‘¢‘Ì//
-typedef struct
-{
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3  rot;
-}KEYPLAYER;
-
-//ƒL[ƒZƒbƒg‚Ì\‘¢‘Ì//
-typedef struct
-{
-	int keyFrame;
-	KEYPLAYER key[MAX_MODELPARTS];
-}KEYSETPLAYER;
-
 //modelƒf[ƒ^‚Ì\‘¢‘Ì//
 typedef struct
 {
-	int key;		//ŠÔŠÇ—
-	int nowKey;		//¡‚ÌƒL[
+	int key;		// ŠÔŠÇ—
+	int nowKey;		// ¡‚ÌƒL[
 	int loop;		// ƒ‹[ƒv‚·‚é‚©‚Ç‚¤‚©[0:ƒ‹[ƒv‚µ‚È‚¢ / 1 : ƒ‹[ƒv‚·‚é]
 	int num_key;  	// ƒL[”
-	KEYSETPLAYER KeySet[MAX_KEY];
+	MyKeySet KeySet[MAX_KEY];
 }MODELDATAPLAYER;
 
 typedef struct
 {
-	D3DXVECTOR3			pos;							//ˆÊ’u
-	D3DXVECTOR3			posOld;							//ˆÊ’u‰ß‹
-	D3DXVECTOR3			move;							//ƒ€[ƒu
-	D3DXVECTOR3			rot;							//‰ñ“]	
-	D3DXVECTOR3			rotMove;						//‰ñ“]ƒ€[ƒu
-	D3DXVECTOR3			modelMin;						//ƒTƒCƒYÅ¬
-	D3DXVECTOR3			modelMax;						//ƒTƒCƒYÅ‘å
-	D3DXMATRIX			mtxWorld;						//ƒ}ƒgƒŠƒbƒNƒX//ƒ|ƒŠƒSƒ“‚ÌˆÊ’u‚â‰ñ“]s—ñ‚·‚×‚Ä‚ğ‚Â‚ß‚Ä‚éƒiƒjƒJ
+	D3DXVECTOR3		pos;						// ˆÊ’u
+	D3DXVECTOR3		posOld;						// ˆÊ’u‰ß‹
+	D3DXVECTOR3		move;						// ƒ€[ƒu
+	D3DXVECTOR3		rot;						// ‰ñ“]	
+	D3DXVECTOR3		rotMove;					// ‰ñ“]ƒ€[ƒu
+	D3DXVECTOR3		modelMin;					// ƒTƒCƒYÅ¬
+	D3DXVECTOR3		modelMax;					// ƒTƒCƒYÅ‘å
+	D3DXMATRIX		mtxWorld;					// ƒ}ƒgƒŠƒbƒNƒX//ƒ|ƒŠƒSƒ“‚ÌˆÊ’u‚â‰ñ“]s—ñ‚·‚×‚Ä‚ğ‚Â‚ß‚Ä‚éƒiƒjƒJ
 
-	STATUS				status;							//¡‚ÌƒXƒe[ƒ^ƒX
-	DAMEGE				damege;							//ƒ_ƒ[ƒW‚­‚ç‚Á‚Ä‚é‚©‚­‚ç‚Á‚Ä‚È‚¢‚©
-	COPY				copy;							//ƒRƒs[
+	STATUS			status;						// ¡‚ÌƒXƒe[ƒ^ƒX
+	DAMEGE			damege;						// ƒ_ƒ[ƒW‚­‚ç‚Á‚Ä‚é‚©‚­‚ç‚Á‚Ä‚È‚¢‚©
+	COPY			copy;						// ƒRƒs[
 
-	PARTS				Parts[MAX_MODELPARTS];			// ƒ‚ƒfƒ‹ƒp[ƒc
-	PARTSFILE			PartsFile[MAX_MODELPARTS];		//ƒp[ƒcƒtƒ@ƒCƒ‹
-	MOTION				motion[ANIME_MAX];				// ƒ‚[ƒVƒ‡ƒ“
-	ANIME				MotionType;						// ƒ‚[ƒVƒ‡ƒ“ƒ^ƒCƒv(Œ»İ)
-	ANIME				MotionTypeOld;					// ƒ‚[ƒVƒ‡ƒ“ƒ^ƒCƒv(‰ß‹)
-	int					nMaxModelType;					// ƒ‚ƒfƒ‹‚Ìƒ^ƒCƒv”
-	int					nMaxModelParts;					// ˆµ‚¤ƒ‚ƒfƒ‹ƒp[ƒc”
-	int					nMaxMotion;						// ƒ‚[ƒVƒ‡ƒ“”
+	Parts			parts[MAX_MODELPARTS];		// ƒ‚ƒfƒ‹ƒp[ƒc
+	PartsFile		partsFile[MAX_MODELPARTS];	// ƒp[ƒcƒtƒ@ƒCƒ‹
+	MyMotion		motion[ANIME_MAX];			// ƒ‚[ƒVƒ‡ƒ“
+	ANIME			motionType;					// ƒ‚[ƒVƒ‡ƒ“ƒ^ƒCƒv(Œ»İ)
+	ANIME			motionTypeOld;				// ƒ‚[ƒVƒ‡ƒ“ƒ^ƒCƒv(‰ß‹)
+	int				nMaxModelType;				// ƒ‚ƒfƒ‹‚Ìƒ^ƒCƒv”
+	int				nMaxModelParts;				// ˆµ‚¤ƒ‚ƒfƒ‹ƒp[ƒc”
+	int				nMaxMotion;					// ƒ‚[ƒVƒ‡ƒ“”
 
-	int					type;							//ƒ^ƒCƒv
-	int					shadow;							//‰e”Ô†
-	int					invincible;						//–³“GŠÔ
-	float				consumption;					//ŒvZ—p
+	int				type;						// ƒ^ƒCƒv
+	int				shadow;						// ‰e”Ô†
+	int				invincible;					// –³“GŠÔ
+	float			consumption;				// ŒvZ—p
 
-	bool				bMotionBlend;					// ƒ‚[ƒVƒ‡ƒ“ƒuƒŒƒ“ƒh
-	bool				bMotion;						// ƒ‚[ƒVƒ‡ƒ“‚ğg—pó‹µ
+	bool			bMotionBlend;				// ƒ‚[ƒVƒ‡ƒ“ƒuƒŒƒ“ƒh
+	bool			bMotion;					// ƒ‚[ƒVƒ‡ƒ“‚ğg—pó‹µ
 
-	bool				isUse;							//g‚Á‚Ä‚é‚©g‚Á‚Ä‚È‚¢‚©
-	bool				notLoop;						//ƒ‹[ƒv‚·‚é‚©‚µ‚È‚¢‚©
+	bool			isUse;						// g‚Á‚Ä‚é‚©g‚Á‚Ä‚È‚¢‚©
+	bool			notLoop;					// ƒ‹[ƒv‚·‚é‚©‚µ‚È‚¢‚©
 
-	 char				aFirename[256];//
+	 char			aFirename[256];//
 }PLAYER;
 
 
@@ -137,6 +123,6 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot);//ƒZƒbƒgˆø”À•W‚Æ“Ç‚İ‚Şƒtƒ@ƒ
 
 void MoveSet(void);	//ƒ€[ƒuƒZƒbƒg
 void Collision(void);	//“–‚½‚è”»’è‚Ü‚Æ‚ß
-void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts);
+void SetCopy(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion, int *nMaxParts);
 
 #endif

@@ -25,7 +25,7 @@
 typedef struct
 {
 	char	aName[MAX_MODEL_PARTS];		// 名前
-}PARTSFILE;
+}PartsFile;
 
 //***************************************************************
 // キー構造体を定義
@@ -34,16 +34,16 @@ typedef struct
 {
 	D3DXVECTOR3		pos;	// 現在位置
 	D3DXVECTOR3		rot;	// 現在の向き
-}Key;
+}MyKey;
 
 //***************************************************************
 // キー設定構造体を定義
 //***************************************************************
 typedef struct
 {
-	int		nFrame;				// フレーム数
-	Key		key[MAX_KEY];		// キー情報
-}KeySet;
+	int		nFrame;			// フレーム数
+	MyKey	key[MAX_KEY];	// キー情報
+}MyKeySet;
 
 //***************************************************************
 // モーション設定構造体を定義
@@ -54,8 +54,8 @@ typedef struct
 	int			nCntKeySet;				// キーセットカウント
 	int			nCntFrame;				// フレームカウント
 	bool		bLoop;					// ループ使用状況
-	KeySet		keySet[MAX_KEYSET];		// キー設定情報
-}MOTION;
+	MyKeySet		keySet[MAX_KEYSET];		// キー設定情報
+}MyMotion;
 
 //***************************************************************
 // モデルパーツ構造体を定義
@@ -76,27 +76,27 @@ typedef struct
 	D3DXVECTOR3		vtxMax;					// 頂点座標の最大値
 	int				nIdxModelParent;		// 親モデルのインデックス数
 	int				nType;					// パーツのタイプ
-}PARTS;
+}Parts;
 
 //***************************************************************
 // プロトタイプ宣言
 //***************************************************************
 // 入力関数
 void SetParts(int nMaxParts,							// パーツ数
-	PARTS *Parts,										// パーツ情報
+	Parts *parts,										// パーツ情報
 	D3DXMATRIX mtxWorld,								// ワールドマトリックス
 	D3DXMATRIX mtxRot,									// 計算用マトリックス
 	D3DXMATRIX mtxTrans,								// 計算用マトリックス
 	D3DMATERIAL9 *matDef,								// マテリアル保存変数
 	D3DXMATERIAL *pMat);								// マテリアルデータ
 bool PlayMotion(int nMaxParts,							// パーツ数
-	PARTS *Parts,										// パーツ情報
-	MOTION *motion);									// モーション情報
+	Parts *parts,										// パーツ情報
+	MyMotion *motion);									// モーション情報
 bool MotionBlend(int nCntMotionSet,						// モーションの配列番号
-	PARTS *Parts,										// パーツ情報
+	Parts *parts,										// パーツ情報
 	int nMaxParts,										// パーツ数
-	MOTION *motion);									// モーション情報						
-void LoodSetMotion(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts);
+	MyMotion *motion);									// モーション情報						
+void LoodSetMotion(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion, int *nMaxParts);
 
 #endif
 

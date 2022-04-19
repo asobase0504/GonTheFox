@@ -9,6 +9,7 @@
 
 #include "main.h"
 #include "motion.h"
+#include "player.h"
 
 //------------------------------------
 // マクロ
@@ -23,77 +24,78 @@
 //#define MAX_KEY  (6)
 #define MAX_COPY  (4)
 
-enum class ENEMY_TYPE
+//------------------------------------
+// 種別の列挙型
+//------------------------------------
+enum ENEMY_TYPE
 {
-	FILE = 0,	// 炎の敵
-	SWORD,		// 剣の敵
-	ATTACK,		//攻撃
-	JUMP,		//ジャンプ
-	LANDING,	//着地
+	HUMANSOUL = 0,	// 人魂
+	SKELETON,		// がいこつ
+	UNGAIKYO,		// 雲外鏡
+	KAMAITACHI,		// かまいたち
+	BUDDHA,			// ブツー
 	MAX
 };
 
-typedef enum
-{
-	ANIME_NORMAL = 0,	//ニュートラル
-	ANIME_RUN,			//歩き
-	ANIME_ATTACK,		//攻撃
-	ANIME_JUMP,			//ジャンプ
-	ANIME_LANDING,		//着地
-	ANIME_MAX
-}ANIME;
-
-typedef enum
-{
-	STATUS_NORMAL = 0,	//ニュートラル
-	STATUS_RUN,		//歩き
-	STATUS_ATTACK,	//攻撃
-	STATUS_JUMPUP,		//ジャンプ
-	STATUS_JUMPDOWN,		//降下
-	STATUS_LANDING,	//着地
-	STATUS_MAX
-}STATUS;
-
-typedef enum
-{
-	DAMEGE_NORMAL = 0,	//ニュートラル
-	DAMEGE_NOU,			//ダメージくらってる
-	DAMEGE_MAX
-}DAMEGE;
-
-typedef enum
-{
-	COPY_NORMAL = 0,//ニュートラル
-	COPY_SWORD,		//ソード
-	COPY_FIRE,		//ファイア
-	COPY_LASER,		//レーザー
-	COPY_CUTTER,	//カッター
-	COPY_MAX
-}COPY;
-
-//キーの構造体//
-typedef struct
-{
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3  rot;
-}KEYPLAYER;
-
-//キーセットの構造体//
-typedef struct
-{
-	int keyFrame;
-	KEYPLAYER key[MAX_MODELPARTS];
-}KEYSETPLAYER;
-
-//modelデータの構造体//
-typedef struct
-{
-	int key;		//時間管理
-	int nowKey;		//今のキー
-	int loop;		// ループするかどうか[0:ループしない / 1 : ループする]
-	int num_key;  	// キー数
-	KEYSETPLAYER KeySet[MAX_KEY];
-}MODELDATAPLAYER;
+////------------------------------------
+//// 挙動の列挙型
+////------------------------------------
+//enum ANIME
+//{
+//	ANIME_NORMAL = 0,	//ニュートラル
+//	ANIME_RUN,			//歩き
+//	ANIME_ATTACK,		//攻撃
+//	ANIME_JUMP,			//ジャンプ
+//	ANIME_LANDING,		//着地
+//	ANIME_MAX
+//};
+//
+////------------------------------------
+//// 状態の列挙型
+////------------------------------------
+//enum STATUS
+//{
+//	STATUS_NORMAL = 0,	//ニュートラル
+//	STATUS_RUN,		//歩き
+//	STATUS_ATTACK,	//攻撃
+//	STATUS_JUMPUP,		//ジャンプ
+//	STATUS_JUMPDOWN,		//降下
+//	STATUS_LANDING,	//着地
+//	STATUS_MAX
+//};
+//
+////------------------------------------
+//// ダメージ状態の列挙型
+////------------------------------------
+//typedef enum
+//{
+//	DAMEGE_NORMAL = 0,	//ニュートラル
+//	DAMEGE_NOU,			//ダメージくらってる
+//	DAMEGE_MAX
+//}DAMEGE;
+//
+////------------------------------------
+//// 能力の列挙型
+////------------------------------------
+//typedef enum
+//{
+//	COPY_NORMAL = 0,//ニュートラル
+//	COPY_SWORD,		//ソード
+//	COPY_FIRE,		//ファイア
+//	COPY_LASER,		//レーザー
+//	COPY_CUTTER,	//カッター
+//	COPY_MAX
+//}COPY;
+//
+////modelデータの構造体//
+//typedef struct
+//{
+//	int key;		//時間管理
+//	int nowKey;		//今のキー
+//	int loop;		// ループするかどうか[0:ループしない / 1 : ループする]
+//	int num_key;  	// キー数
+//	MyKeySet KeySet[MAX_KEY];
+//}MODELDATAPLAYER;
 
 typedef struct
 {
@@ -110,11 +112,11 @@ typedef struct
 	DAMEGE		damege;						// ダメージくらってるかくらってないか
 	COPY		copy;						// コピー
 
-	PARTS		Parts[MAX_MODELPARTS];		// モデルパーツ
-	PARTSFILE	PartsFile[MAX_MODELPARTS];	// パーツファイル
-	MOTION		motion[ANIME_MAX];			// モーション
-	ANIME		MotionType;					// モーションタイプ(現在)
-	ANIME		MotionTypeOld;				// モーションタイプ(過去)
+	Parts		parts[MAX_MODELPARTS];		// モデルパーツ
+	PartsFile	partsFile[MAX_MODELPARTS];	// パーツファイル
+	MyMotion	motion[ANIME_MAX];			// モーション
+	ANIME		motionType;					// モーションタイプ(現在)
+	ANIME		motionTypeOld;				// モーションタイプ(過去)
 	int			nMaxModelType;				// モデルのタイプ数
 	int			nMaxModelParts;				// 扱うモデルパーツ数
 	int			nMaxMotion;					// モーション数
