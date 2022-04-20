@@ -106,7 +106,7 @@ void DrawGame()
 	SetCamera();	// カメラ
 
 	DrawPlayer();		// プレイヤー
-	//DrawEnemy();		// エネミー
+	DrawEnemy();		// エネミー
 	DrawRectangle3D();	// 矩形(3D)
 	DrawRectangle();	// 矩形(2D)
 
