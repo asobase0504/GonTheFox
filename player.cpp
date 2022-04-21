@@ -72,7 +72,7 @@ void UninitPlayer(void)
 {
 	StopSound();
 
-	for (int i = 0; i <= MAX_MODELPARTS; i++)
+	for (int i = 0; i < MAX_MODELPARTS; i++)
 	{
 		// 頂点バッファーの解放
 		if (s_Player.parts[i].pBuffer != NULL)
