@@ -8,6 +8,7 @@
 // include
 //--------------------------------------------------
 #include <stdio.h>
+#include <assert.h>
 #include "enemy.h"
 #include "input.h"
 #include "camera.h"
@@ -19,12 +20,13 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_ENEMY	(100)
+#define MAX_ENEMY	(100)	// 最大エネミー数
 
 //--------------------------------------------------
 // 静的変数
 //--------------------------------------------------
-static Enemy s_Enemy[MAX_ENEMY];	// ポリゴンの構造体
+static Enemy s_Enemy[MAX_ENEMY];		// エネミーの構造体
+static Enemy s_EnemyType[ENEMY_TYPE_MAX];	// エネミー種別の構造体
 static MODELDATAPLAYER s_ModelData[MAX_MOVE];
 
 static int s_parts;	// パーツの最大数
@@ -53,8 +55,12 @@ void InitEnemy(void)
 	// 初期化処理
 	memset(&s_Enemy, NULL, sizeof(s_Enemy));
 
-	SetEnemy(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	SetEnemy(D3DXVECTOR3(20.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	// 読込
+	LoadEnemy();
+
+	// エネミーの設置
+	SetEnemy(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),ENEMY_TYPE_HUMANSOUL);
+	SetEnemy(D3DXVECTOR3(20.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), ENEMY_TYPE_HUMANSOUL);
 }
 
 //=========================================
@@ -116,24 +122,6 @@ void UpdateEnemy(void)
 		{
 			pEnemy->motionType = ANIME_NORMAL;
 		}
-		//if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_D) || GetKeyboardPress(DIK_S) ||
-		//	GetJoypadPress(JOYKEY_UP, 0) || GetJoypadPress(JOYKEY_DOWN, 0) || GetJoypadPress(JOYKEY_LEFT, 0) || GetJoypadPress(JOYKEY_RIGHT, 0))
-		//{
-		//	pEnemy->motionType = ANIME_RUN;	// 歩く
-
-		//}
-
-		//if (GetKeyboardPress(DIK_SPACE) || GetJoypadPress(JOYKEY_A, 0) || GetJoypadPress(JOYKEY_UP, 0))
-		//{//SPACEキーが押された
-		//	pEnemy->pos.y = pEnemy->pos.y + 5.0f;
-		//	s_pow++;
-		//	pEnemy->motionType = ANIME_JUMP;
-
-		//}
-		//else
-		//{
-		//	s_pow = 0;
-		//}
 
 		if (s_pow >= 1 && s_pow <= 10)
 		{//ジャンプシステム
@@ -232,7 +220,10 @@ void DrawEnemy(void)
 	}
 }
 
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+//=========================================
+// 設定
+//=========================================
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot,ENEMY_TYPE type)
 {
 	for (int i = 0; i < MAX_ENEMY; i++)
 	{
@@ -243,124 +234,17 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 			continue;
 		}
 
+		*pEnemy = s_EnemyType[type];
 		// プレイヤー情報の初期化
 		pEnemy->pos = pos;									// 位置の初期化
 		pEnemy->posOld = pEnemy->pos;						// 過去位置の初期化
 		pEnemy->rot = rot;									// 向きの初期化
-		pEnemy->modelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);		// 頂点座標の最小値
-		pEnemy->modelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);	// 頂点座標の最大値
 		pEnemy->mtxWorld = {};								// ワールドマトリックス
 		pEnemy->motionType = ANIME_NORMAL;					// ニュートラルモーション
 		pEnemy->motionTypeOld = pEnemy->motionType;			// ニュートラルモーション
 		pEnemy->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 移動量
 		pEnemy->bMotionBlend = false;						// モーションブレンドの使用状況
 		pEnemy->isUse = true;								// 使用状況
-		pEnemy->bMotionBlend = false;						// プレイヤーがディスクを持っていない
-
-		// ファイルの読み込み
-		LoodSetMotion("Data/system/Fox.txt", pEnemy->partsFile, pEnemy->parts, pEnemy->motion, &pEnemy->nMaxModelParts);
-
-		for (int i = 0; i < pEnemy->nMaxModelParts; i++)
-		{
-			Parts* pParts = &pEnemy->parts[i];
-
-			// 位置と向きの初期値を保存
-			pParts->posOrigin = pParts->pos;
-			pParts->rotOrigin = pParts->rot;
-
-			// パーツ情報の初期化
-			pParts->mtxWorld = {};	// ワールドマトリックス
-			pParts->vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);	// 頂点座標の最小値
-			pParts->vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);	// 頂点座標の最大値
-
-			// Xファイルの読み込み
-			D3DXLoadMeshFromX(pEnemy->partsFile[pParts->nType].aName,
-				D3DXMESH_SYSTEMMEM,
-				GetDevice(),
-				NULL,
-				&pParts->pBuffer,
-				NULL,
-				&pParts->nNumMat,
-				&pParts->pMesh);
-
-			// 頂点座標の最小値・最大値の算出
-			int nNumVtx;	// 頂点数
-			DWORD sizeFVF;	// 頂点フォーマットのサイズ
-			BYTE *pVtxBuff;	// 頂点バッファへのポインタ
-
-			// 頂点数の取得
-			nNumVtx = pParts->pMesh->GetNumVertices();
-
-			// 頂点フォーマットのサイズの取得
-			sizeFVF = D3DXGetFVFVertexSize(pParts->pMesh->GetFVF());
-
-			// 頂点バッファのロック
-			pParts->pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
-
-			for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
-			{
-				// 頂点座標の代入
-				D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVtxBuff;
-
-				if (vtx.x < pParts->vtxMin.x)
-				{// 比較対象が現在の頂点座標(X)の最小値より小さい
-					pParts->vtxMin.x = vtx.x;
-				}
-				if (vtx.y < pParts->vtxMin.y)
-				{// 比較対象が現在の頂点座標(Y)の最小値より小さい
-					pParts->vtxMin.y = vtx.y;
-				}
-				if (vtx.z < pParts->vtxMin.z)
-				{// 比較対象が現在の頂点座標(Z)の最小値より小さい
-					pParts->vtxMin.z = vtx.z;
-				}
-
-				if (vtx.x > pParts->vtxMax.x)
-				{// 比較対象が現在の頂点座標(X)の最大値より大きい
-					pParts->vtxMax.x = vtx.x;
-				}
-				if (vtx.y > pParts->vtxMax.y)
-				{// 比較対象が現在の頂点座標(Y)の最大値より大きい
-					pParts->vtxMax.y = vtx.y;
-				}
-				if (vtx.z > pParts->vtxMax.z)
-				{// 比較対象が現在の頂点座標(Z)の最大値より大きい
-					pParts->vtxMax.z = vtx.z;
-				}
-
-				// 頂点フォーマットのサイズ分ポインタを進める
-				pVtxBuff += sizeFVF;
-			}
-
-			if (pParts->vtxMin.x < pEnemy->modelMin.x)
-			{// 比較対象が現在の頂点座標(X)の最小値より小さい
-				pEnemy->modelMin.x = pParts->vtxMin.x;
-			}
-			if (pParts->vtxMin.y < pEnemy->modelMin.y)
-			{// 比較対象が現在の頂点座標(Y)の最小値より小さい
-				pEnemy->modelMin.y = pParts->vtxMin.y;
-			}
-			if (pParts->vtxMin.z < pEnemy->modelMin.z)
-			{// 比較対象が現在の頂点座標(Z)の最小値より小さい
-				pEnemy->modelMin.z = pParts->vtxMin.z;
-			}
-
-			if (pParts->vtxMax.x > pEnemy->modelMax.x)
-			{// 比較対象が現在の頂点座標(X)の最大値より大きい
-				pEnemy->modelMax.x = pParts->vtxMax.x;
-			}
-			if (pParts->vtxMax.y > pEnemy->modelMax.y)
-			{// 比較対象が現在の頂点座標(Y)の最大値より大きい
-				pEnemy->modelMax.y = pParts->vtxMax.y;
-			}
-			if (pParts->vtxMax.z > pEnemy->modelMax.z)
-			{// 比較対象が現在の頂点座標(Z)の最大値より大きい
-				pEnemy->modelMax.z = pParts->vtxMax.z;
-			}
-
-			// 頂点バッファのアンロック
-			pParts->pMesh->UnlockVertexBuffer();
-		}
 
 		break;
 	}
@@ -456,9 +340,184 @@ void SetCopy(void)
 }
 
 //----------------------
-//ゲット(構造体)
+// ゲット(構造体)
 //----------------------
 Enemy *GetEnemy(void)
 {
 	return s_Enemy;
+}
+
+//----------------------
+// 読込
+//----------------------
+void LoadEnemy(void)
+{
+	FILE *pFile = fopen("Data/system/enemy/enemy.txt","r");
+
+	if (pFile == NULL)
+	{//ファイルが開いた場合
+		assert(false);
+		return;
+	}
+		
+	char aString[128] = {};			// 文字列比較用の変数
+	char aEqual[128] = {};		// ＝読み込み用変数
+	char fileName[ENEMY_TYPE_MAX][128];
+	int fileCnt = 0;
+
+	fscanf(pFile, "%s", &aString);
+
+	while (strncmp(&aString[0], "SCRIPT", 6) != 0)
+	{// 文字列が一致した場合
+		aString[0] = {};
+		// 文字列の読み込み
+		fscanf(pFile, "%s", &aString[0]);
+	}
+	while (strncmp(&aString[0], "END_SCRIPT", 10) != 0)
+	{
+		fscanf(pFile, "%s", &aString[0]);
+
+		if (strncmp(&aString[0], "#", 1) == 0)
+		{// 一列読み込む
+			fgets(&aString[0], sizeof(aString), pFile);
+		}
+
+		if (strcmp(&aString[0], "MODEL_FILENAME") == 0)
+		{// ファイル名の読み込み
+			fscanf(pFile, "%s", &aEqual[0]);
+			fscanf(pFile, "%s", fileName[fileCnt]);
+			fileCnt++;
+		}
+	}
+
+	for (int i = 0; i < ENEMY_TYPE_MAX; i++)
+	{
+		Enemy* pEnemy = &s_EnemyType[i];
+
+		if (pEnemy->isUse)
+		{
+			continue;
+		}
+
+		// プレイヤー情報の初期化
+		pEnemy->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 位置の初期化
+		pEnemy->posOld = pEnemy->pos;					// 過去位置の初期化
+		pEnemy->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);;	// 向きの初期化
+		pEnemy->modelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);		// 頂点座標の最小値
+		pEnemy->modelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);	// 頂点座標の最大値
+		pEnemy->mtxWorld = {};								// ワールドマトリックス
+		pEnemy->motionType = ANIME_NORMAL;					// ニュートラルモーション
+		pEnemy->motionTypeOld = pEnemy->motionType;			// ニュートラルモーション
+		pEnemy->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 移動量
+		pEnemy->bMotionBlend = false;						// モーションブレンドの使用状況
+		pEnemy->isUse = true;								// 使用状況
+		pEnemy->bMotionBlend = false;						// プレイヤーがディスクを持っていない
+
+		// ファイルの読み込み
+		LoodSetMotion(fileName[i], pEnemy->partsFile, pEnemy->parts, pEnemy->motion, &pEnemy->nMaxModelParts);
+
+		for (int i = 0; i < pEnemy->nMaxModelParts; i++)
+		{
+			Parts* pParts = &pEnemy->parts[i];
+
+			// 位置と向きの初期値を保存
+			pParts->posOrigin = pParts->pos;
+			pParts->rotOrigin = pParts->rot;
+
+			// パーツ情報の初期化
+			pParts->mtxWorld = {};	// ワールドマトリックス
+			pParts->vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);	// 頂点座標の最小値
+			pParts->vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);	// 頂点座標の最大値
+
+																		// Xファイルの読み込み
+			D3DXLoadMeshFromX(pEnemy->partsFile[pParts->nType].aName,
+				D3DXMESH_SYSTEMMEM,
+				GetDevice(),
+				NULL,
+				&pParts->pBuffer,
+				NULL,
+				&pParts->nNumMat,
+				&pParts->pMesh);
+
+			// 頂点座標の最小値・最大値の算出
+			int nNumVtx;	// 頂点数
+			DWORD sizeFVF;	// 頂点フォーマットのサイズ
+			BYTE *pVtxBuff;	// 頂点バッファへのポインタ
+
+							// 頂点数の取得
+			nNumVtx = pParts->pMesh->GetNumVertices();
+
+			// 頂点フォーマットのサイズの取得
+			sizeFVF = D3DXGetFVFVertexSize(pParts->pMesh->GetFVF());
+
+			// 頂点バッファのロック
+			pParts->pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
+
+			for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
+			{
+				// 頂点座標の代入
+				D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVtxBuff;
+
+				if (vtx.x < pParts->vtxMin.x)
+				{// 比較対象が現在の頂点座標(X)の最小値より小さい
+					pParts->vtxMin.x = vtx.x;
+				}
+				if (vtx.y < pParts->vtxMin.y)
+				{// 比較対象が現在の頂点座標(Y)の最小値より小さい
+					pParts->vtxMin.y = vtx.y;
+				}
+				if (vtx.z < pParts->vtxMin.z)
+				{// 比較対象が現在の頂点座標(Z)の最小値より小さい
+					pParts->vtxMin.z = vtx.z;
+				}
+
+				if (vtx.x > pParts->vtxMax.x)
+				{// 比較対象が現在の頂点座標(X)の最大値より大きい
+					pParts->vtxMax.x = vtx.x;
+				}
+				if (vtx.y > pParts->vtxMax.y)
+				{// 比較対象が現在の頂点座標(Y)の最大値より大きい
+					pParts->vtxMax.y = vtx.y;
+				}
+				if (vtx.z > pParts->vtxMax.z)
+				{// 比較対象が現在の頂点座標(Z)の最大値より大きい
+					pParts->vtxMax.z = vtx.z;
+				}
+
+				// 頂点フォーマットのサイズ分ポインタを進める
+				pVtxBuff += sizeFVF;
+			}
+
+			if (pParts->vtxMin.x < pEnemy->modelMin.x)
+			{// 比較対象が現在の頂点座標(X)の最小値より小さい
+				pEnemy->modelMin.x = pParts->vtxMin.x;
+			}
+			if (pParts->vtxMin.y < pEnemy->modelMin.y)
+			{// 比較対象が現在の頂点座標(Y)の最小値より小さい
+				pEnemy->modelMin.y = pParts->vtxMin.y;
+			}
+			if (pParts->vtxMin.z < pEnemy->modelMin.z)
+			{// 比較対象が現在の頂点座標(Z)の最小値より小さい
+				pEnemy->modelMin.z = pParts->vtxMin.z;
+			}
+
+			if (pParts->vtxMax.x > pEnemy->modelMax.x)
+			{// 比較対象が現在の頂点座標(X)の最大値より大きい
+				pEnemy->modelMax.x = pParts->vtxMax.x;
+			}
+			if (pParts->vtxMax.y > pEnemy->modelMax.y)
+			{// 比較対象が現在の頂点座標(Y)の最大値より大きい
+				pEnemy->modelMax.y = pParts->vtxMax.y;
+			}
+			if (pParts->vtxMax.z > pEnemy->modelMax.z)
+			{// 比較対象が現在の頂点座標(Z)の最大値より大きい
+				pEnemy->modelMax.z = pParts->vtxMax.z;
+			}
+
+			// 頂点バッファのアンロック
+			pParts->pMesh->UnlockVertexBuffer();
+		}
+
+		break;
+	}
 }

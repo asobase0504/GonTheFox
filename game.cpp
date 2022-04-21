@@ -84,7 +84,7 @@ void UninitGame(void)
 {
 	UninitLight();
 	UninitCamera();
-	UninitPlayer();
+	//UninitPlayer();
 	UninitEnemy();
 }
 

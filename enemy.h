@@ -21,7 +21,6 @@
 #define MAX_MOVE (9)			//アニメーションの最大数
 #define INVINCIBLE (300)		//無敵時間
 #define MAX_MODELPARTS (9)
-//#define MAX_KEY  (6)
 #define MAX_COPY  (4)
 
 //------------------------------------
@@ -29,73 +28,13 @@
 //------------------------------------
 enum ENEMY_TYPE
 {
-	HUMANSOUL = 0,	// 人魂
-	SKELETON,		// がいこつ
-	UNGAIKYO,		// 雲外鏡
-	KAMAITACHI,		// かまいたち
-	BUDDHA,			// ブツー
-	MAX
+	ENEMY_TYPE_HUMANSOUL = 0,	// 人魂
+	ENEMY_TYPE_SKELETON,		// がいこつ
+	ENEMY_TYPE_UNGAIKYO,		// 雲外鏡
+	ENEMY_TYPE_KAMAITACHI,		// かまいたち
+	ENEMY_TYPE_BUDDHA,			// ブツー
+	ENEMY_TYPE_MAX
 };
-
-////------------------------------------
-//// 挙動の列挙型
-////------------------------------------
-//enum ANIME
-//{
-//	ANIME_NORMAL = 0,	//ニュートラル
-//	ANIME_RUN,			//歩き
-//	ANIME_ATTACK,		//攻撃
-//	ANIME_JUMP,			//ジャンプ
-//	ANIME_LANDING,		//着地
-//	ANIME_MAX
-//};
-//
-////------------------------------------
-//// 状態の列挙型
-////------------------------------------
-//enum STATUS
-//{
-//	STATUS_NORMAL = 0,	//ニュートラル
-//	STATUS_RUN,		//歩き
-//	STATUS_ATTACK,	//攻撃
-//	STATUS_JUMPUP,		//ジャンプ
-//	STATUS_JUMPDOWN,		//降下
-//	STATUS_LANDING,	//着地
-//	STATUS_MAX
-//};
-//
-////------------------------------------
-//// ダメージ状態の列挙型
-////------------------------------------
-//typedef enum
-//{
-//	DAMEGE_NORMAL = 0,	//ニュートラル
-//	DAMEGE_NOU,			//ダメージくらってる
-//	DAMEGE_MAX
-//}DAMEGE;
-//
-////------------------------------------
-//// 能力の列挙型
-////------------------------------------
-//typedef enum
-//{
-//	COPY_NORMAL = 0,//ニュートラル
-//	COPY_SWORD,		//ソード
-//	COPY_FIRE,		//ファイア
-//	COPY_LASER,		//レーザー
-//	COPY_CUTTER,	//カッター
-//	COPY_MAX
-//}COPY;
-//
-////modelデータの構造体//
-//typedef struct
-//{
-//	int key;		//時間管理
-//	int nowKey;		//今のキー
-//	int loop;		// ループするかどうか[0:ループしない / 1 : ループする]
-//	int num_key;  	// キー数
-//	MyKeySet KeySet[MAX_KEY];
-//}MODELDATAPLAYER;
 
 typedef struct
 {
@@ -111,6 +50,7 @@ typedef struct
 	STATUS		status;						// 今のステータス
 	DAMEGE		damege;						// ダメージくらってるかくらってないか
 	COPY		copy;						// コピー
+	ENEMY_TYPE	type;						// エネミーのタイプ
 
 	Parts		parts[MAX_MODELPARTS];		// モデルパーツ
 	PartsFile	partsFile[MAX_MODELPARTS];	// パーツファイル
@@ -121,7 +61,6 @@ typedef struct
 	int			nMaxModelParts;				// 扱うモデルパーツ数
 	int			nMaxMotion;					// モーション数
 
-	int			type;						// タイプ
 	int			shadow;						// 影番号
 	int			invincible;					// 無敵時間
 	float		consumption;				// 計算用
@@ -139,8 +78,9 @@ void UninitEnemy(void);	// 破棄
 void UpdateEnemy(void);	// 更新
 void DrawEnemy(void);	// 描画
 
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot);//セット引数座標と読み込むファイル名
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot, ENEMY_TYPE type);//セット引数座標と読み込むファイル名
 void SizeSet(void);//当たり判定取得
 Enemy *GetEnemy(void);//ゲット
 MODELDATAPLAYER *GetModelDataEnemy(void);//motionデータのゲット
+void LoadEnemy(void);	// 読込
 #endif
