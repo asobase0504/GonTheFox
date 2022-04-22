@@ -1,0 +1,5 @@
+SCRIPT
+MODEL_FILENAME = Data/system/enemy/FoxBlock.txt
+MODEL_FILENAME = Data/system/enemy/FoxPoizun.txt
+
+END_SCRIPT
