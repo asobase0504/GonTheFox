@@ -23,7 +23,7 @@
 // パーツ設置処理
 //---------------------------------------------------------------------------
 void SetParts(int nMaxParts,		// パーツ数
-	PARTS *Parts,					// パーツ情報
+	Parts *parts,					// パーツ情報
 	D3DXMATRIX mtxWorld,			// ワールドマトリックス
 	D3DXMATRIX mtxRot,				// 計算用マトリックス
 	D3DXMATRIX mtxTrans,			// 計算用マトリックス
@@ -36,60 +36,60 @@ void SetParts(int nMaxParts,		// パーツ数
 	for (int i = 0; i < nMaxParts; i++)
 	{
 		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&(Parts + i)->mtxWorld);				// 行列初期化関数
+		D3DXMatrixIdentity(&(parts + i)->mtxWorld);				// 行列初期化関数
 
 		// 向きの反映
 		D3DXMatrixRotationYawPitchRoll(&mtxRot,
-			(Parts + i)->rot.y,
-			(Parts + i)->rot.x,
-			(Parts + i)->rot.z);								// 行列回転関数
-		D3DXMatrixMultiply(&(Parts + i)->mtxWorld,
-			&(Parts + i)->mtxWorld,
+			(parts + i)->rot.y,
+			(parts + i)->rot.x,
+			(parts + i)->rot.z);								// 行列回転関数
+		D3DXMatrixMultiply(&(parts + i)->mtxWorld,
+			&(parts + i)->mtxWorld,
 			&mtxRot);											// 行列掛け算関数 
 
 		// 位置を反映
 		D3DXMatrixTranslation(&mtxTrans,
-			(Parts + i)->pos.x,
-			(Parts + i)->pos.y,
-			(Parts + i)->pos.z);								// 行列移動関数
-		D3DXMatrixMultiply(&(Parts + i)->mtxWorld,
-			&(Parts + i)->mtxWorld,
+			(parts + i)->pos.x,
+			(parts + i)->pos.y,
+			(parts + i)->pos.z);								// 行列移動関数
+		D3DXMatrixMultiply(&(parts + i)->mtxWorld,
+			&(parts + i)->mtxWorld,
 			&mtxTrans);											// 行列掛け算関数
 
 		// 親パーツのワールドマトリックスを保持
 		D3DXMATRIX mtxParent;
 
-		if ((Parts + i)->nIdxModelParent == -1)
+		if ((parts + i)->nIdxModelParent == -1)
 		{// 親モデルのインデックス数が-1の時
 			mtxParent = mtxWorld;
 		}
 		else
 		{
-			mtxParent = (Parts + (Parts + i)->nIdxModelParent)->mtxWorld;
+			mtxParent = (parts + (parts + i)->nIdxModelParent)->mtxWorld;
 		}
 
 		// 自分の親マトリックスとの掛け算
-		D3DXMatrixMultiply(&(Parts + i)->mtxWorld, &(Parts + i)->mtxWorld, &mtxParent);
+		D3DXMatrixMultiply(&(parts + i)->mtxWorld, &(parts + i)->mtxWorld, &mtxParent);
 
 		//// サイズの反映
 		//D3DXMatrixScaling()
 
 		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &(Parts + i)->mtxWorld);
+		pDevice->SetTransform(D3DTS_WORLD, &(parts + i)->mtxWorld);
 
 		// 現在のマテリアルを保持
 		pDevice->GetMaterial(&*matDef);
 
 		// マテリアルデータへのポインタを取得
-		pMat = (D3DXMATERIAL*)(Parts + i)->pBuffer->GetBufferPointer();
+		pMat = (D3DXMATERIAL*)(parts + i)->pBuffer->GetBufferPointer();
 
-		for (int nCntMat = 0; nCntMat < (int)(Parts + i)->nNumMat; nCntMat++)
+		for (int nCntMat = 0; nCntMat < (int)(parts + i)->nNumMat; nCntMat++)
 		{
 			// マテリアルの設定
 			pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
 
 			// プレイヤーパーツの描画
-			(Parts + i)->pMesh->DrawSubset(nCntMat);
+			(parts + i)->pMesh->DrawSubset(nCntMat);
 		}
 
 		// 保していたマテリアルを戻す
@@ -98,11 +98,11 @@ void SetParts(int nMaxParts,		// パーツ数
 }
 
 //---------------------------------------------------------------------------
-// プレイヤーのモーション処理
+// モーション処理
 //---------------------------------------------------------------------------
 bool PlayMotion(int nMaxParts,			// パーツ数
-	PARTS *Parts,						// パーツ情報
-	MOTION *motion)						// モーション情報
+	Parts *parts,						// パーツ情報
+	MyMotion *motion)						// モーション情報
 {
 	// 変数宣言
 	bool bMotion = true;
@@ -112,35 +112,35 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 		if (motion->nCntFrame == 0)
 		{// フレームカウントが0の時
 			// 目的の位置と向きの算出
-			(Parts + nCntParts)->posDest = ((Parts + nCntParts)->posOrigin + motion->keySet[motion->nCntKeySet].key[nCntParts].pos) - (Parts + nCntParts)->pos;
-			(Parts + nCntParts)->rotDest = ((Parts + nCntParts)->rotOrigin + motion->keySet[motion->nCntKeySet].key[nCntParts].rot) - (Parts + nCntParts)->rot;
+			(parts + nCntParts)->posDest = ((parts + nCntParts)->posOrigin + motion->keySet[motion->nCntKeySet].key[nCntParts].pos) - (parts + nCntParts)->pos;
+			(parts + nCntParts)->rotDest = ((parts + nCntParts)->rotOrigin + motion->keySet[motion->nCntKeySet].key[nCntParts].rot) - (parts + nCntParts)->rot;
 
 			// 角度の正規化
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.x);
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.y);
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.z);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.x);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.y);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.z);
 			
 		}
 
 		// 変数宣言
-		D3DXVECTOR3 addPos = D3DXVECTOR3((Parts + nCntParts)->posDest / (float)(motion->keySet[motion->nCntKeySet].nFrame));
-		D3DXVECTOR3 addRot = D3DXVECTOR3((Parts + nCntParts)->rotDest / (float)(motion->keySet[motion->nCntKeySet].nFrame));
+		D3DXVECTOR3 addPos = D3DXVECTOR3((parts + nCntParts)->posDest / (float)(motion->keySet[motion->nCntKeySet].nFrame));
+		D3DXVECTOR3 addRot = D3DXVECTOR3((parts + nCntParts)->rotDest / (float)(motion->keySet[motion->nCntKeySet].nFrame));
 
 		// 位置の加算
-		(Parts + nCntParts)->pos += addPos;
+		(parts + nCntParts)->pos += addPos;
 
 		//	向きの加算
-		(Parts + nCntParts)->rot += addRot;
+		(parts + nCntParts)->rot += addRot;
 
 		// 角度の正規化
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.x);
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.y);
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.z);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.x);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.y);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.z);
 	}
 
 	// フレームカウントの加算
 	motion->nCntFrame++;
-
+	
 	if (motion->nCntFrame >= motion->keySet[motion->nCntKeySet].nFrame)
 	{// フレームカウントが指定のフレーム数を超えた場合
 		// フレーム数の初期化
@@ -153,6 +153,7 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 		{// 再生中のキー数カウントがキー数の最大値を超えたとき、そのモーションがループを使用している
 			// 再生中のキー数カウントを初期化
 			motion->nCntKeySet = 0;
+
 		}
 		else if (motion->nCntKeySet >= motion->nNumKey)
 		{
@@ -168,9 +169,9 @@ bool PlayMotion(int nMaxParts,			// パーツ数
 // モーションブレンド処理
 //---------------------------------------------------------------------------
 bool MotionBlend(int nCntMotionSet,						// モーションの配列番号
-	PARTS *Parts,										// パーツ情報
+	Parts *parts,										// パーツ情報
 	int nMaxParts,										// パーツ数
-	MOTION *motion)										// モーション情報			
+	MyMotion *motion)										// モーション情報			
 {
 	// 変数宣言
 	bool bMotionBlend = true;
@@ -180,29 +181,29 @@ bool MotionBlend(int nCntMotionSet,						// モーションの配列番号
 		if ((motion + nCntMotionSet)->nCntFrame == 0)
 		{// フレームカウントが0の時
 			// 目的の位置と向きの算出
-			(Parts + nCntParts)->posDest = ((Parts + nCntParts)->posOrigin + (motion + nCntMotionSet)->keySet[(motion + nCntMotionSet)->nCntKeySet].key[nCntParts].pos) - (Parts + nCntParts)->pos;
-			(Parts + nCntParts)->rotDest = ((Parts + nCntParts)->rotOrigin + (motion + nCntMotionSet)->keySet[(motion + nCntMotionSet)->nCntKeySet].key[nCntParts].rot) - (Parts + nCntParts)->rot;
+			(parts + nCntParts)->posDest = ((parts + nCntParts)->posOrigin + (motion + nCntMotionSet)->keySet[(motion + nCntMotionSet)->nCntKeySet].key[nCntParts].pos) - (parts + nCntParts)->pos;
+			(parts + nCntParts)->rotDest = ((parts + nCntParts)->rotOrigin + (motion + nCntMotionSet)->keySet[(motion + nCntMotionSet)->nCntKeySet].key[nCntParts].rot) - (parts + nCntParts)->rot;
 
 			// 角度の正規化
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.x);
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.y);
-			NormalizeAngle(&(Parts + nCntParts)->rotDest.z);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.x);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.y);
+			NormalizeAngle(&(parts + nCntParts)->rotDest.z);
 		}
 
 		// 変数宣言
-		D3DXVECTOR3 addPos = D3DXVECTOR3((Parts + nCntParts)->posDest / (float)(MOTION_BLEND_FRAM));
-		D3DXVECTOR3 addRot = D3DXVECTOR3((Parts + nCntParts)->rotDest / (float)(MOTION_BLEND_FRAM));
+		D3DXVECTOR3 addPos = D3DXVECTOR3((parts + nCntParts)->posDest / (float)(MOTION_BLEND_FRAM));
+		D3DXVECTOR3 addRot = D3DXVECTOR3((parts + nCntParts)->rotDest / (float)(MOTION_BLEND_FRAM));
 
 		// 位置の加算
-		(Parts + nCntParts)->pos += addPos;
+		(parts + nCntParts)->pos += addPos;
 
 		//	向きの加算
-		(Parts + nCntParts)->rot += addRot;
+		(parts + nCntParts)->rot += addRot;
 
 		// 角度の正規化
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.x);
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.y);
-		NormalizeAngle(&(Parts + nCntParts)->rotDest.z);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.x);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.y);
+		NormalizeAngle(&(parts + nCntParts)->rotDest.z);
 	}
 
 	// フレームカウントの加算
@@ -225,7 +226,7 @@ bool MotionBlend(int nCntMotionSet,						// モーションの配列番号
 //---------------------------------------------------------------------------
 // モーション読み込み処理
 //---------------------------------------------------------------------------
-void LoodSetMotion(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion,int *nMaxParts)
+void LoodSetMotion(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion,int *nMaxParts)
 {
 	// 変数宣言
 	char aString[128] = {};			// 文字列比較用の変数
@@ -261,8 +262,8 @@ void LoodSetMotion(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *
 			if (strcmp(&aString[0], "MODEL_FILENAME") == 0)
 			{// ファイル名の読み込み
 				fscanf(pFile, "%s", &g_aEqual[0]);
-				fscanf(pFile, "%s", &PartsFile->aName[0]);
-				PartsFile++;
+				fscanf(pFile, "%s", &partsFile->aName[0]);
+				partsFile++;
 			}
 
 			if (strcmp(&aString[0], "CHARACTERSET") == 0)
@@ -296,31 +297,31 @@ void LoodSetMotion(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *
 							if (strcmp(&aString[0], "INDEX") == 0)
 							{// タイプの読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%d", &Parts->nType);
+								fscanf(pFile, "%d", &parts->nType);
 							}
 							if (strcmp(&aString[0], "PARENT") == 0)
 							{// 親の読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%d", &Parts->nIdxModelParent);
+								fscanf(pFile, "%d", &parts->nIdxModelParent);
 							}
 							if (strcmp(&aString[0], "POS") == 0)
 							{// 位置の読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%f", &Parts->pos.x);
-								fscanf(pFile, "%f", &Parts->pos.y);
-								fscanf(pFile, "%f", &Parts->pos.z);
+								fscanf(pFile, "%f", &parts->pos.x);
+								fscanf(pFile, "%f", &parts->pos.y);
+								fscanf(pFile, "%f", &parts->pos.z);
 							}
 							if (strcmp(&aString[0], "ROT") == 0)
 							{// 向きの読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%f", &Parts->rot.x);
-								fscanf(pFile, "%f", &Parts->rot.y);
-								fscanf(pFile, "%f", &Parts->rot.z);
+								fscanf(pFile, "%f", &parts->rot.x);
+								fscanf(pFile, "%f", &parts->rot.y);
+								fscanf(pFile, "%f", &parts->rot.z);
 							}
 						}
 
 						// パーツカウントのインクリメント
-						Parts++;
+						parts++;
 					}
 				}
 			}

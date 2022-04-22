@@ -15,6 +15,7 @@
 #include "mode.h"
 // 処理ヘッダー
 #include "player.h"
+#include "enemy.h"
 #include <stdio.h>
 // 描画ヘッダー
 #include "camera.h"
@@ -49,6 +50,7 @@ void InitGame(void)
 	InitLight();
 	InitCamera();
 	InitPlayer();
+	InitEnemy();
 
 	// DEBUGのため(矩形2D)
 	{
@@ -80,7 +82,10 @@ void InitGame(void)
 //=========================================
 void UninitGame(void)
 {
-
+	UninitLight();
+	UninitCamera();
+	//UninitPlayer();
+	UninitEnemy();
 }
 
 //=========================================
@@ -90,6 +95,7 @@ void UpdateGame(void)
 {
 	UpdateCamera();	// カメラ
 	UpdatePlayer();	// プレイヤー
+	UpdateEnemy();	// エネミー
 }
 
 //=========================================
@@ -100,6 +106,7 @@ void DrawGame()
 	SetCamera();	// カメラ
 
 	DrawPlayer();		// プレイヤー
+	DrawEnemy();		// エネミー
 	DrawRectangle3D();	// 矩形(3D)
 	DrawRectangle();	// 矩形(2D)
 

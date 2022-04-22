@@ -61,9 +61,7 @@ void CollisionModel(D3DXVECTOR3* pos, D3DXVECTOR3* pos_old, D3DXVECTOR3 min, D3D
 Model* GetModel(void);		// モデルの取得処理
 void LoadModel(void);		// モデルの読み込み処理
 void LoadMap(void);			// モデルマップの読み込み処理
-Model* SetModel(int nType);			// モデルの設定(読み込みされたモデル参照)
-void DrawModelUI(void);				// モデルUIの描画
-void SetModelUI(Model* model);		// モデルUIの設定
+Model* SetModel(int nType);	// モデルの設定(読み込みされたモデル参照)
 Model* SetJustModel(void);
 void ModelSize(D3DXVECTOR3* minOut, D3DXVECTOR3* maxOut, const LPD3DXMESH mesh);	// モデルのサイズを算出
 

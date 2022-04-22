@@ -23,6 +23,17 @@ static MODELDATAPLAYER s_ModelData[MAX_MOVE];
 static int s_time, s_parts;//タイマーとパーツの最大数
 static int s_pow;//ジャンプパワー
 static int nMotion;//
+
+//------------------------------------
+// プロトタイプ宣言
+//------------------------------------
+static void SetCopy(void);		// コピーの設定
+static void Collision(void);	// 当たり判定まとめ
+static void SizSet(void);//当たり判定取得
+static void AnimationSet(int animation);//アニメーションの計算
+static void MoveSet(void);	//ムーブセット
+static MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
+
 //=========================================
 // 初期化処理
 //=========================================
@@ -41,13 +52,13 @@ void InitPlayer(void)
 	//縦　　　　　　　　　　//横
 	s_Player.rotMove = D3DXVECTOR3(D3DX_PI + pCamera->rot.y, D3DX_PI*0.5f + pCamera->rot.y, 0.0f);
 	s_Player.damege = DAMEGE_NORMAL;
-	s_Player.MotionType = ANIME_NORMAL;				//いま使ってるmotioの番号
-	s_Player.MotionTypeOld = s_Player.MotionType;
+	s_Player.motionType = ANIME_NORMAL;				//いま使ってるmotioの番号
+	s_Player.motionTypeOld = s_Player.motionType;
 	s_parts = 0;
 
 	s_Player.modelMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
 	s_Player.modelMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-	s_Player.use = true;
+	s_Player.isUse = true;
 
 	s_time = 0;
 
@@ -61,18 +72,18 @@ void UninitPlayer(void)
 {
 	StopSound();
 
-	for (int i = 0; i <= MAX_MODELPARTS; i++)
+	for (int i = 0; i < MAX_MODELPARTS; i++)
 	{
 		// 頂点バッファーの解放
-		if (s_Player.Parts[i].pBuffer != NULL)
+		if (s_Player.parts[i].pBuffer != NULL)
 		{
-			s_Player.Parts[i].pBuffer->Release();
-			s_Player.Parts[i].pBuffer = NULL;
+			s_Player.parts[i].pBuffer->Release();
+			s_Player.parts[i].pBuffer = NULL;
 		}
-		if (s_Player.Parts[i].pMesh != NULL)
+		if (s_Player.parts[i].pMesh != NULL)
 		{
-			s_Player.Parts[i].pMesh->Release();
-			s_Player.Parts[i].pMesh = NULL;
+			s_Player.parts[i].pMesh->Release();
+			s_Player.parts[i].pMesh = NULL;
 		}
 	}
 }
@@ -83,11 +94,12 @@ void UninitPlayer(void)
 void UpdatePlayer(void)
 {
 	// 現在のモーション番号の保管
-	s_Player.MotionTypeOld = s_Player.MotionType;
+	s_Player.motionTypeOld = s_Player.motionType;
 
 	if (!s_Player.bMotion)
 	{// 使用してるモーションがない場合
-		s_Player.MotionType = ANIME_NORMAL;
+		s_Player.motionType = ANIME_NORMAL;
+		s_Player.notLoop = false;
 	}
 
 	MoveSet();	//動きセット
@@ -97,22 +109,20 @@ void UpdatePlayer(void)
 	//			//アニメーションや足音の設定
 	if (s_Player.notLoop == false)
 	{
-		s_Player.MotionType = ANIME_NORMAL;
+		s_Player.motionType = ANIME_NORMAL;
 	}
 	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_D) || GetKeyboardPress(DIK_S) ||
 		GetJoypadPress(JOYKEY_UP, 0) || GetJoypadPress(JOYKEY_DOWN, 0) || GetJoypadPress(JOYKEY_LEFT, 0) || GetJoypadPress(JOYKEY_RIGHT, 0))
 	{
-		s_Player.MotionType = ANIME_RUN;//歩く
+		s_Player.motionType = ANIME_RUN;//歩く
 
 	}
-
 
 	if (GetKeyboardPress(DIK_SPACE) || GetJoypadPress(JOYKEY_A, 0) || GetJoypadPress(JOYKEY_UP, 0))
 	{//SPACEキーが押された
 		s_Player.pos.y = s_Player.pos.y + 5.0f;
 		s_pow++;
-		s_Player.MotionType = ANIME_JUMP;
-
+		s_Player.motionType = ANIME_JUMP;
 	}
 	else
 	{
@@ -128,7 +138,7 @@ void UpdatePlayer(void)
 	s_Player.move.y -= 1.0f;
 	if (GetKeyboardPress(DIK_B))
 	{
-		s_Player.MotionType = ANIME_ATTACK;//攻撃
+		s_Player.motionType = ANIME_ATTACK;//攻撃
 
 		s_Player.bMotion = true;
 	}
@@ -141,27 +151,27 @@ void UpdatePlayer(void)
 
 		s_Player.copy = COPY_SWORD;
 		// ファイルの読み込み
-		SetCopy("Data/system/sword.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
+		SetCopy("Data/system/sword.txt", &s_Player.partsFile[7], &s_Player.parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_H))
 	{
 		s_Player.copy = COPY_FIRE;
 		// ファイルの読み込み
-		SetCopy("Data/system/flare.txt", &s_Player.PartsFile[7], 
-					&s_Player.Parts[7], &s_Player.motion[0],
+		SetCopy("Data/system/flare.txt", &s_Player.partsFile[7], 
+					&s_Player.parts[7], &s_Player.motion[0],
 					&s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_F))
 	{
 		s_Player.copy = COPY_LASER;
 		// ファイルの読み込み	
-		SetCopy("Data/system/Laser.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
+		SetCopy("Data/system/Laser.txt", &s_Player.partsFile[7], &s_Player.parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_G))
 	{
 		s_Player.copy = COPY_CUTTER;
 		// ファイルの読み込み
-		SetCopy("Data/system/Cutter.txt", &s_Player.PartsFile[7], &s_Player.Parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
+		SetCopy("Data/system/Cutter.txt", &s_Player.partsFile[7], &s_Player.parts[7], &s_Player.motion[0], &s_Player.nMaxModelParts);
 	}
 	if (GetKeyboardPress(DIK_K))
 	{
@@ -174,25 +184,25 @@ void UpdatePlayer(void)
 
 	//AnimationSet((int)s_Player.motion);//アニメーション再生
 
-	if (s_Player.MotionTypeOld != s_Player.MotionType)
+	if (s_Player.motionTypeOld != s_Player.motionType)
 	{// モーションタイプが変更された時
-		s_Player.motion[s_Player.MotionTypeOld].nCntFrame = 0;
-		s_Player.motion[s_Player.MotionTypeOld].nCntKeySet = 0;
+		s_Player.motion[s_Player.motionTypeOld].nCntFrame = 0;
+		s_Player.motion[s_Player.motionTypeOld].nCntKeySet = 0;
 		s_Player.bMotionBlend = true;
 	}
 
 	if (s_Player.bMotionBlend)
 	{// モーションブレンドを使用してる
-		s_Player.bMotionBlend = MotionBlend((int)(s_Player.MotionType),				// モーションの配列番号
-			&s_Player.Parts[0],														// パーツ情報
+		s_Player.bMotionBlend = MotionBlend((int)(s_Player.motionType),				// モーションの配列番号
+			&s_Player.parts[0],														// パーツ情報
 			s_Player.nMaxModelParts,												// パーツ数
 			&s_Player.motion[0]);													// モーション情報	
 	}
 	else if (!s_Player.bMotionBlend)
 	{// モーションブレンドを使用してない場合
 		s_Player.bMotion = PlayMotion(s_Player.nMaxModelParts,						// パーツ数
-			&s_Player.Parts[0],														// パーツ情報
-			&s_Player.motion[(int)(s_Player.MotionType)]);							// モーション情報
+			&s_Player.parts[0],														// パーツ情報
+			&s_Player.motion[(int)(s_Player.motionType)]);							// モーション情報
 	}
 }
 
@@ -207,7 +217,7 @@ void DrawPlayer(void)
 	D3DXMATERIAL *pMat= {};
 	D3DXVECTOR3 scale(1.8f, 1.8f, 1.8f);
 
-	if (s_Player.use)//使ってるやつ出す
+	if (s_Player.isUse)//使ってるやつ出す
 	{
 		// ワールドマトリックスの初期化
 		// 行列初期化関数(第1引数の行列を単位行列に初期化)
@@ -233,7 +243,7 @@ void DrawPlayer(void)
 
 		// パーツの描画設定
 		SetParts(s_Player.nMaxModelParts,					// パーツ数
-			&s_Player.Parts[0],								// パーツ情報
+			&s_Player.parts[0],								// パーツ情報
 			s_Player.mtxWorld,								// ワールドマトリックス
 			mtxRot,											// 計算用マトリックス
 			mtxTrans,										// 計算用マトリックス
@@ -241,7 +251,7 @@ void DrawPlayer(void)
 			pMat);											// マテリアルデータ
 	
 
-		//現在のマテリアルを元に戻す
+		//	//// 行列掛け算関数(第2引数×第3引数第を１引数に格納)
 		pDevice->SetMaterial(&marDef);
 	}
 }
@@ -259,16 +269,16 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	s_Player.modelMax = D3DXVECTOR3(-100, -100, -100);										// 頂点座標の最大値
 	s_Player.mtxWorld = {};																	// ワールドマトリックス
 	//s_Player.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);										// 目的の向き
-	s_Player.MotionType = ANIME_NORMAL;														// ニュートラルモーション
-	s_Player.MotionTypeOld = s_Player.MotionType;											// ニュートラルモーション
+	s_Player.motionType = ANIME_NORMAL;														// ニュートラルモーション
+	s_Player.motionTypeOld = s_Player.motionType;											// ニュートラルモーション
 	s_Player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);											// 移動量
 	s_Player.bMotionBlend = false;															// モーションブレンドの使用状況
-	s_Player.use = true;																	// 使用状況
+	s_Player.isUse = true;																	// 使用状況
 	//g_nIdxShadow[nCntPlayer] = SetShadow(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));	//影の設定処理の初期化
 
 
 	// ファイルの読み込み
-	LoodSetMotion("Data/system/Fox.txt", s_Player.PartsFile, s_Player.Parts, s_Player.motion, &s_Player.nMaxModelParts);
+	LoodSetMotion("Data/system/Fox.txt", s_Player.partsFile, s_Player.parts, s_Player.motion, &s_Player.nMaxModelParts);
 
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -276,23 +286,23 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	for (int i = 0; i < s_Player.nMaxModelParts; i++)
 	{
 		// 位置と向きの初期値を保存
-		s_Player.Parts[i].posOrigin = s_Player.Parts[i].pos;
-		s_Player.Parts[i].rotOrigin = s_Player.Parts[i].rot;
+		s_Player.parts[i].posOrigin = s_Player.parts[i].pos;
+		s_Player.parts[i].rotOrigin = s_Player.parts[i].rot;
 
 		// パーツ情報の初期化
-		s_Player.Parts[i].mtxWorld = {};																// ワールドマトリックス
-		s_Player.Parts[i].vtxMin = D3DXVECTOR3(1000, 1000, 1000);		// 頂点座標の最小値
-		s_Player.Parts[i].vtxMax = D3DXVECTOR3(-1000, -1000, -1000);	// 頂点座標の最大値
+		s_Player.parts[i].mtxWorld = {};																// ワールドマトリックス
+		s_Player.parts[i].vtxMin = D3DXVECTOR3(1000, 1000, 1000);		// 頂点座標の最小値
+		s_Player.parts[i].vtxMax = D3DXVECTOR3(-1000, -1000, -1000);	// 頂点座標の最大値
 
 		// Xファイルの読み込み
-		D3DXLoadMeshFromX(&s_Player.PartsFile[s_Player.Parts[i].nType].aName[0],
+		D3DXLoadMeshFromX(&s_Player.partsFile[s_Player.parts[i].nType].aName[0],
 			D3DXMESH_SYSTEMMEM,
 			pDevice,
 			NULL,
-			&s_Player.Parts[i].pBuffer,
+			&s_Player.parts[i].pBuffer,
 			NULL,
-			&s_Player.Parts[i].nNumMat,
-			&s_Player.Parts[i].pMesh);
+			&s_Player.parts[i].nNumMat,
+			&s_Player.parts[i].pMesh);
 
 		// 頂点座標の最小値・最大値の算出
 		int			nNumVtx;	// 頂点数
@@ -300,84 +310,84 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 		BYTE		*pVtxBuff;	// 頂点バッファへのポインタ
 
 								// 頂点数の取得
-		nNumVtx = s_Player.Parts[i].pMesh->GetNumVertices();
+		nNumVtx = s_Player.parts[i].pMesh->GetNumVertices();
 
 		// 頂点フォーマットのサイズの取得
-		sizeFVF = D3DXGetFVFVertexSize(s_Player.Parts[i].pMesh->GetFVF());
+		sizeFVF = D3DXGetFVFVertexSize(s_Player.parts[i].pMesh->GetFVF());
 
 		// 頂点バッファのロック
-		s_Player.Parts[i].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
+		s_Player.parts[i].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
 
 		for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
 		{
 			// 頂点座標の代入
 			D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVtxBuff;
 
-			if (vtx.x < s_Player.Parts[i].vtxMin.x)
+			if (vtx.x < s_Player.parts[i].vtxMin.x)
 			{// 比較対象が現在の頂点座標(X)の最小値より小さい
-				s_Player.Parts[i].vtxMin.x = vtx.x;
+				s_Player.parts[i].vtxMin.x = vtx.x;
 			}
-			if (vtx.y < s_Player.Parts[i].vtxMin.y)
+			if (vtx.y < s_Player.parts[i].vtxMin.y)
 			{// 比較対象が現在の頂点座標(Y)の最小値より小さい
-				s_Player.Parts[i].vtxMin.y = vtx.y;
+				s_Player.parts[i].vtxMin.y = vtx.y;
 			}
-			if (vtx.z < s_Player.Parts[i].vtxMin.z)
+			if (vtx.z < s_Player.parts[i].vtxMin.z)
 			{// 比較対象が現在の頂点座標(Z)の最小値より小さい
-				s_Player.Parts[i].vtxMin.z = vtx.z;
+				s_Player.parts[i].vtxMin.z = vtx.z;
 			}
 
-			if (vtx.x > s_Player.Parts[i].vtxMax.x)
+			if (vtx.x > s_Player.parts[i].vtxMax.x)
 			{// 比較対象が現在の頂点座標(X)の最大値より大きい
-				s_Player.Parts[i].vtxMax.x = vtx.x;
+				s_Player.parts[i].vtxMax.x = vtx.x;
 			}
-			if (vtx.y > s_Player.Parts[i].vtxMax.y)
+			if (vtx.y > s_Player.parts[i].vtxMax.y)
 			{// 比較対象が現在の頂点座標(Y)の最大値より大きい
-				s_Player.Parts[i].vtxMax.y = vtx.y;
+				s_Player.parts[i].vtxMax.y = vtx.y;
 			}
-			if (vtx.z > s_Player.Parts[i].vtxMax.z)
+			if (vtx.z > s_Player.parts[i].vtxMax.z)
 			{// 比較対象が現在の頂点座標(Z)の最大値より大きい
-				s_Player.Parts[i].vtxMax.z = vtx.z;
+				s_Player.parts[i].vtxMax.z = vtx.z;
 			}
 
 			// 頂点フォーマットのサイズ分ポインタを進める
 			pVtxBuff += sizeFVF;
 		}
 
-		if (s_Player.Parts[i].vtxMin.x < s_Player.modelMin.x)
+		if (s_Player.parts[i].vtxMin.x < s_Player.modelMin.x)
 		{// 比較対象が現在の頂点座標(X)の最小値より小さい
-			s_Player.modelMin.x = s_Player.Parts[i].vtxMin.x;
+			s_Player.modelMin.x = s_Player.parts[i].vtxMin.x;
 		}
-		if (s_Player.Parts[i].vtxMin.y < s_Player.modelMin.y)
+		if (s_Player.parts[i].vtxMin.y < s_Player.modelMin.y)
 		{// 比較対象が現在の頂点座標(Y)の最小値より小さい
-			s_Player.modelMin.y = s_Player.Parts[i].vtxMin.y;
+			s_Player.modelMin.y = s_Player.parts[i].vtxMin.y;
 		}
-		if (s_Player.Parts[i].vtxMin.z < s_Player.modelMin.z)
+		if (s_Player.parts[i].vtxMin.z < s_Player.modelMin.z)
 		{// 比較対象が現在の頂点座標(Z)の最小値より小さい
-			s_Player.modelMin.z = s_Player.Parts[i].vtxMin.z;
+			s_Player.modelMin.z = s_Player.parts[i].vtxMin.z;
 		}
 
-		if (s_Player.Parts[i].vtxMax.x > s_Player.modelMax.x)
+		if (s_Player.parts[i].vtxMax.x > s_Player.modelMax.x)
 		{// 比較対象が現在の頂点座標(X)の最大値より大きい
-			s_Player.modelMax.x = s_Player.Parts[i].vtxMax.x;
+			s_Player.modelMax.x = s_Player.parts[i].vtxMax.x;
 		}
-		if (s_Player.Parts[i].vtxMax.y > s_Player.modelMax.y)
+		if (s_Player.parts[i].vtxMax.y > s_Player.modelMax.y)
 		{// 比較対象が現在の頂点座標(Y)の最大値より大きい
-			s_Player.modelMax.y = s_Player.Parts[i].vtxMax.y;
+			s_Player.modelMax.y = s_Player.parts[i].vtxMax.y;
 		}
-		if (s_Player.Parts[i].vtxMax.z > s_Player.modelMax.z)
+		if (s_Player.parts[i].vtxMax.z > s_Player.modelMax.z)
 		{// 比較対象が現在の頂点座標(Z)の最大値より大きい
-			s_Player.modelMax.z = s_Player.Parts[i].vtxMax.z;
+			s_Player.modelMax.z = s_Player.parts[i].vtxMax.z;
 		}
 
 		// 頂点バッファのアンロック
-		s_Player.Parts[i].pMesh->UnlockVertexBuffer();
+		s_Player.parts[i].pMesh->UnlockVertexBuffer();
 	}
 }
 
+//--------------------------
+//当たり判定のサイズせってい
+//--------------------------
 
-//------------------------------
-//動きセット
-//-------------------------------
 void MoveSet(void)
 {
 	Camera *pCamera;
@@ -509,9 +519,9 @@ void Collision(void)
 }
 
 //-------------------------------
-//コピーを処理
+//モーションをロードする処理
 //-------------------------------
-void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion, int *nMaxParts)
+void SetCopy(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion, int *nMaxParts)
 {
 	// 変数宣言
 	char aString[128] = {};			// 文字列比較用の変数
@@ -521,17 +531,17 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 
 									// ファイルポインタの宣言
 	FILE * pFile;
-
-
+//-------------------------------
+//コピーを処理
 	if (s_Player.nMaxModelParts >= 7)
 	{
 		s_Player.nMaxModelParts = 7;
 	}
-	//ファイルを開く
+	
 	pFile = fopen(pFileName, "r");
 
 	if (pFile != NULL)
-	{//ファイルが開いた場合
+	{
 		fscanf(pFile, "%s", &aString);
 
 		while (strncmp(&aString[0], "SCRIPT", 6) != 0)
@@ -552,7 +562,7 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 			if (strcmp(&aString[0], "MODEL_FILENAME") == 0)
 			{// ファイル名の読み込み
 				fscanf(pFile, "%s", &g_aEqual[0]);
-				fscanf(pFile, "%s", &PartsFile->aName[0]);
+				fscanf(pFile, "%s", &partsFile->aName[0]);
 
 			}
 
@@ -580,26 +590,26 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 							if (strcmp(&aString[0], "INDEX") == 0)
 							{// タイプの読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%d", &Parts->nType);
+								fscanf(pFile, "%d", &parts->nType);
 							}
 							if (strcmp(&aString[0], "PARENT") == 0)
 							{// 親の読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%d", &Parts->nIdxModelParent);
+								fscanf(pFile, "%d", &parts->nIdxModelParent);
 							}
 							if (strcmp(&aString[0], "POS") == 0)
 							{// 位置の読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%f", &Parts->pos.x);
-								fscanf(pFile, "%f", &Parts->pos.y);
-								fscanf(pFile, "%f", &Parts->pos.z);
+								fscanf(pFile, "%f", &parts->pos.x);
+								fscanf(pFile, "%f", &parts->pos.y);
+								fscanf(pFile, "%f", &parts->pos.z);
 							}
 							if (strcmp(&aString[0], "ROT") == 0)
 							{// 向きの読み込み
 								fscanf(pFile, "%s", &g_aEqual[0]);
-								fscanf(pFile, "%f", &Parts->rot.x);
-								fscanf(pFile, "%f", &Parts->rot.y);
-								fscanf(pFile, "%f", &Parts->rot.z);
+								fscanf(pFile, "%f", &parts->rot.x);
+								fscanf(pFile, "%f", &parts->rot.y);
+								fscanf(pFile, "%f", &parts->rot.z);
 							}
 						}
 					}
@@ -699,22 +709,22 @@ void SetCopy(char *pFileName, PARTSFILE *PartsFile, PARTS *Parts, MOTION *Motion
 		printf("\n * * * ファイルが開けません * * * \n");
 	}
 
-	// デバイスの取得
+	
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	// 位置と向きの初期値を保存
-	s_Player.Parts[s_Player.nMaxModelParts].posOrigin = s_Player.Parts[s_Player.nMaxModelParts].pos;
-	s_Player.Parts[s_Player.nMaxModelParts].rotOrigin = s_Player.Parts[s_Player.nMaxModelParts].rot;
+	s_Player.parts[s_Player.nMaxModelParts].posOrigin = s_Player.parts[s_Player.nMaxModelParts].pos;
+	s_Player.parts[s_Player.nMaxModelParts].rotOrigin = s_Player.parts[s_Player.nMaxModelParts].rot;
 
 	// Xファイルの読み込み
-	D3DXLoadMeshFromX(&s_Player.PartsFile[s_Player.Parts[s_Player.nMaxModelParts].nType].aName[0],
+	D3DXLoadMeshFromX(&s_Player.partsFile[s_Player.parts[s_Player.nMaxModelParts].nType].aName[0],
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
-		&s_Player.Parts[s_Player.nMaxModelParts].pBuffer,
+		&s_Player.parts[s_Player.nMaxModelParts].pBuffer,
 		NULL,
-		&s_Player.Parts[s_Player.nMaxModelParts].nNumMat,
-		&s_Player.Parts[s_Player.nMaxModelParts].pMesh);
+		&s_Player.parts[s_Player.nMaxModelParts].nNumMat,
+		&s_Player.parts[s_Player.nMaxModelParts].pMesh);
 
 	
 		s_Player.nMaxModelParts++;
