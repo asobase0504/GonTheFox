@@ -124,5 +124,5 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot);//ƒZƒbƒgˆø”À•W‚Æ“Ç‚İ‚Şƒtƒ@ƒ
 void MoveSet(void);	//ƒ€[ƒuƒZƒbƒg
 void Collision(void);	//“–‚½‚è”»’è‚Ü‚Æ‚ß
 void SetCopy(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion, int *nMaxParts);
-
+PLAYER *GetPlayer(void);
 #endif

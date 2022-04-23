@@ -13,7 +13,8 @@
 #include "title.h"
 #include "sound.h"
 #include "motion.h"
-
+#include "lnhale.h"
+#include "game.h"
 //------------------------------------
 // static変数
 //------------------------------------
@@ -33,6 +34,7 @@ static void SizSet(void);//当たり判定取得
 static void AnimationSet(int animation);//アニメーションの計算
 static void MoveSet(void);	//ムーブセット
 static MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
+
 
 //=========================================
 // 初期化処理
@@ -138,6 +140,8 @@ void UpdatePlayer(void)
 	s_Player.move.y -= 1.0f;
 	if (GetKeyboardPress(DIK_B))
 	{
+
+		cLnhale.Set(s_Player.pos);
 		s_Player.motionType = ANIME_ATTACK;//攻撃
 
 		s_Player.bMotion = true;
@@ -256,8 +260,9 @@ void DrawPlayer(void)
 	}
 }
 
-
-
+//=========================================
+// Set処理
+//=========================================
 void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	// プレイヤー情報の初期化
@@ -384,10 +389,9 @@ void SetPlayer(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	}
 }
 
-//--------------------------
-//当たり判定のサイズせってい
-//--------------------------
-
+//=========================================
+// ムーブ処理
+//=========================================
 void MoveSet(void)
 {
 	Camera *pCamera;
@@ -516,10 +520,13 @@ void Collision(void)
 	{
 		s_Player.pos.y = 0.0f;
 	}
+
+
+	
 }
 
 //-------------------------------
-//モーションをロードする処理
+//コピーしたときモーションをロードする処理
 //-------------------------------
 void SetCopy(char *pFileName, PartsFile *partsFile, Parts *parts, MyMotion *Motion, int *nMaxParts)
 {

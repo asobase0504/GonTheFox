@@ -16,12 +16,12 @@
 #include "title.h"
 #include "sound.h"
 #include "motion.h"
-
+#include "game.h"
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
 #define MAX_ENEMY	(100)	// 最大エネミー数
-
+#define SIZE_ENEMY (D3DXVECTOR3(50.0f,50.0f,0.0f))
 //--------------------------------------------------
 // 静的変数
 //--------------------------------------------------
@@ -271,6 +271,24 @@ void AnimationSet(int animation)
 void MoveSet(void)
 {
 
+	
+	for (int i = 0; i < MAX_ENEMY; i++)
+	{
+		Enemy* pEnemy = &s_Enemy[i];
+
+		if (!pEnemy->isUse)
+		{
+			continue;
+		}
+
+		
+		bool bHit = cLnhale.Hit(pEnemy->pos, SIZE_ENEMY);
+
+		if (bHit)
+		{
+			pEnemy->isUse = false;
+		}
+	}
 }
 //-------------------------------
 //当たり判定まとめ

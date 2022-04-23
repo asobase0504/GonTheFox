@@ -16,6 +16,7 @@
 // 処理ヘッダー
 #include "player.h"
 #include "enemy.h"
+
 #include <stdio.h>
 // 描画ヘッダー
 #include "camera.h"
@@ -50,8 +51,8 @@ void InitGame(void)
 	InitLight();
 	InitCamera();
 	InitPlayer();
+	cLnhale.Init();
 	InitEnemy();
-
 	// DEBUGのため(矩形2D)
 	{
 		int data = SetRectangle(TEXTURE_NONE);
@@ -86,6 +87,7 @@ void UninitGame(void)
 	UninitCamera();
 	//UninitPlayer();
 	UninitEnemy();
+	cLnhale.Uninit();
 }
 
 //=========================================
@@ -93,8 +95,10 @@ void UninitGame(void)
 //=========================================
 void UpdateGame(void)
 {
+
 	UpdateCamera();	// カメラ
 	UpdatePlayer();	// プレイヤー
+	cLnhale.Update();
 	UpdateEnemy();	// エネミー
 }
 
@@ -109,7 +113,7 @@ void DrawGame()
 	DrawEnemy();		// エネミー
 	DrawRectangle3D();	// 矩形(3D)
 	DrawRectangle();	// 矩形(2D)
-
+	cLnhale.Draw();
 	// 2Dの前に3Dを置く
 	GetDevice()->Clear(0, NULL, (D3DCLEAR_ZBUFFER), D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
 

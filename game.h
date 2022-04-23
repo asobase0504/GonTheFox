@@ -7,6 +7,10 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
+
+#include "lnhale.h"
+
+static CLnhale cLnhale;
 //------------------------------------
 // プロトタイプ宣言
 //------------------------------------
