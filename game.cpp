@@ -26,6 +26,7 @@
 #include "color.h"
 // DEBUGヘッダー
 #include <assert.h>
+#include "lnhale.h"
 
 //------------------------------------
 // 定義
@@ -48,10 +49,11 @@ namespace
 //=========================================
 void InitGame(void)
 {
+
+
 	InitLight();
 	InitCamera();
 	InitPlayer();
-	cLnhale.Init();
 	InitEnemy();
 	// DEBUGのため(矩形2D)
 	{
@@ -87,7 +89,9 @@ void UninitGame(void)
 	UninitCamera();
 	//UninitPlayer();
 	UninitEnemy();
-	cLnhale.Uninit();
+	
+
+
 }
 
 //=========================================
@@ -98,7 +102,7 @@ void UpdateGame(void)
 
 	UpdateCamera();	// カメラ
 	UpdatePlayer();	// プレイヤー
-	cLnhale.Update();
+
 	UpdateEnemy();	// エネミー
 }
 
@@ -113,7 +117,7 @@ void DrawGame()
 	DrawEnemy();		// エネミー
 	DrawRectangle3D();	// 矩形(3D)
 	DrawRectangle();	// 矩形(2D)
-	cLnhale.Draw();
+
 	// 2Dの前に3Dを置く
 	GetDevice()->Clear(0, NULL, (D3DCLEAR_ZBUFFER), D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
 

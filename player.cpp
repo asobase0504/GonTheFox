@@ -13,7 +13,7 @@
 #include "title.h"
 #include "sound.h"
 #include "motion.h"
-#include "lnhale.h"
+
 #include "game.h"
 //------------------------------------
 // static変数
@@ -41,6 +41,9 @@ static MODELDATAPLAYER *GetModelData(void);//motionデータのゲット
 //=========================================
 void InitPlayer(void)
 {
+
+	cLnhale = nullptr;
+	cLnhale[5].Init();
 	//カメラのデータ取得
 	Camera *pCamera;
 	pCamera = GetCamera();
@@ -140,11 +143,23 @@ void UpdatePlayer(void)
 	s_Player.move.y -= 1.0f;
 	if (GetKeyboardPress(DIK_B))
 	{
+		
+		if (cLnhale == nullptr)
+		{
+			//動的確保
+			cLnhale = new CLnhale[1];
+		}
 
-		cLnhale.Set(s_Player.pos);
+		cLnhale[0].Set(s_Player.pos);
+		cLnhale[0].Update();
+
 		s_Player.motionType = ANIME_ATTACK;//攻撃
 
 		s_Player.bMotion = true;
+	}
+	else
+	{
+		cLnhale[0].Uninit();
 	}
 	if (GetKeyboardPress(DIK_N))
 	{
@@ -220,6 +235,8 @@ void DrawPlayer(void)
 	D3DMATERIAL9 marDef;
 	D3DXMATERIAL *pMat= {};
 	D3DXVECTOR3 scale(1.8f, 1.8f, 1.8f);
+
+	cLnhale[0].Draw();
 
 	if (s_Player.isUse)//使ってるやつ出す
 	{

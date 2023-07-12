@@ -20,7 +20,7 @@
 //--------------------------
 void CLnhale::Init(void)
 {
-	bUse = false; 						// 使用しているかどうか
+	bUse = true; 						// 使用しているかどうか
 
 	// 頂点バッファの生成
 	GetDevice()->CreateVertexBuffer(
@@ -75,7 +75,7 @@ void CLnhale::Update(void)
 	{
 		if (!GetKeyboardPress(DIK_B))
 		{
-			bUse = false;
+		//	bUse = false;
 		}
 
 		//Playerの座標付近に常に変更する
@@ -101,7 +101,8 @@ void CLnhale::Update(void)
 //--------------------------
 void CLnhale::Draw(void)
 {	
-	
+	if (bUse)
+	{
 		/*↓ 使用している、描画する ↓*/
 		// デバイスへのポインタの取得
 		LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -118,7 +119,7 @@ void CLnhale::Draw(void)
 		pDevice->SetFVF(FVF_VERTEX_2D);
 
 		// テクスチャの設定
-		//pDevice->SetTexture(0,pTexture);
+		pDevice->SetTexture(0,pTexture);
 
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(
@@ -133,7 +134,7 @@ void CLnhale::Draw(void)
 		//pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 		//pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		//pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	
+	}
 }
 
 //--------------------------
@@ -141,11 +142,10 @@ void CLnhale::Draw(void)
 //--------------------------
 void CLnhale::Set(D3DXVECTOR3 setpos)
 {
-	if (!bUse)
-	{
+	
 		pos = setpos;						//座標
 		bUse = true; 						// 使用しているかどうか
-	}
+	
  }
 
 //--------------------------
@@ -155,14 +155,13 @@ bool CLnhale::Hit(D3DXVECTOR3 nowpos, D3DXVECTOR3 hitsize)
 {
 	bool Hit = false;
 
-	if (bUse)
-	{	//吸い込む物との当たり判定
+	
 		if ((nowpos.x - hitsize.x >= pos.x + size.x|| nowpos.x + hitsize.x <= pos.x - size.x)&& 
 			(nowpos.y - hitsize.y >= pos.y + size.y || nowpos.y + hitsize.y <= pos.y - size.y))
 		{
 			Hit = true;
 		}
-	}
+	
 	return Hit;
 }
 
@@ -173,7 +172,7 @@ CLnhale::CLnhale()
 {
 	pos = LNHALEPOS;					//座標
 	size = LNHALESIZE;					//サイズ
-
+	bUse = true; 						// 使用しているかどうか
 	pTexture = NULL;					// テクスチャ
 	pVtxBuff = NULL;					// 頂点バッファ
 	

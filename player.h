@@ -9,6 +9,9 @@
 
 #include "main.h"
 #include "motion.h"
+#include "lnhale.h"
+
+CLnhale *cLnhale;
 
 //------------------------------------
 // É}ÉNÉç

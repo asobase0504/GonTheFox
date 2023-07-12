@@ -14,30 +14,30 @@ NUM_COPY = 5
 #------------------------------------------------------------------------------
 # プレイヤー情報
 #------------------------------------------------------------------------------
-PLAYERSET
-	COPY_NUMBER = 0
-	MOTION_FILENAME = data/system/Fox.txt
-END_PLAYERSET
+ENEMYSET
+	ENEMY_NUMBER = 0
+	ENEMY_FILENAME = data/system/Fox.txt
+END_ENEMYRSET
 
-PLAYERSET
-	COPY_NUMBER = 1
-	MOTION_FILENAME =data/system/sword.txt
-END_PLAYERSET
+ENEMYSET
+	ENEMY_NUMBER = 1
+	ENEMY_FILENAME = data/system/sword.txt
+END_ENEMYSET
 
-PLAYERSET
-	COPY_NUMBER = 2
-	MOTION_FILENAME = data/system/flare.txt
-END_PLAYERSET
+ENEMYSET
+	ENEMY_NUMBER = 2
+	ENEMY_FILENAME = data/system/flare.txt
+END_ENEMYSET
 
-PLAYERSET
-	COPY_NUMBER = 3
-	MOTION_FILENAME = data/system/Laser.txt
-END_PLAYERSET
+ENEMYSET
+	ENEMY_NUMBER = 3
+	ENEMY_FILENAME = data/system/Laser.txt
+END_ENEMYSET
 
-PLAYERSET
-	COPY_NUMBER = 4
-	MOTION_FILENAME = data/system/Cutter.txt
-END_PLAYERSET
+ENEMYSET
+	ENEMY_NUMBER = 4
+	ENEMY_FILENAME = data/system/Cutter.txt
+END_ENEMYSET
 
 
 END_SCRIPT		# この行は絶対消さないこと！

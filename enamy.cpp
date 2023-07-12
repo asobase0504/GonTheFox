@@ -282,12 +282,12 @@ void MoveSet(void)
 		}
 
 		
-		bool bHit = cLnhale.Hit(pEnemy->pos, SIZE_ENEMY);
+	//	bool bHit = cLnhale[0].Hit(pEnemy->pos, SIZE_ENEMY);
 
-		if (bHit)
+		/*if (bHit)
 		{
 			pEnemy->isUse = false;
-		}
+		}*/
 	}
 }
 //-------------------------------
